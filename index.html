@@ -13,7 +13,6 @@
 <meta name="description" content="광덕산환경교육센터 환경교육 프로그램 예약 시스템. 캘린더에서 교육 일정을 확인하고 빈 시간에 신청하세요.">
 <link rel="icon" type="image/png" href="favicon.png">
 
-  
 <style>
 :root{
   --green:#2D9E6B;--green-dark:#1A7A50;--green-light:#E8F7F1;--green-mid:#A8DBBF;
@@ -24,7 +23,6 @@
   --border:rgba(45,158,107,.12);
   --radius:16px;--radius-sm:10px;--radius-xs:6px;
   --shadow:0 2px 12px rgba(45,158,107,.10);
-  --kakao:#FEE500;--kakao-text:#191919;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
@@ -41,13 +39,11 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
 .wrapper{max-width:760px;margin:0 auto;padding:1.5rem 1.25rem 4rem;}
 
 .btn-row{display:flex;gap:10px;margin-bottom:12px;}
-.btn-third{flex:1;display:flex;align-items:center;justify-content:center;padding:16px 10px;font-size:15px;font-weight:700;border-radius:var(--radius);text-decoration:none;transition:all .2s;text-align:center;cursor:pointer;border:none;}
+.btn-half{flex:1;display:flex;align-items:center;justify-content:center;padding:16px 10px;font-size:15px;font-weight:700;border-radius:var(--radius);text-decoration:none;transition:all .2s;text-align:center;cursor:pointer;border:none;}
 .btn-info{background:var(--white);color:var(--green-dark);border:2px solid var(--green);box-shadow:0 2px 8px rgba(45,158,107,.12);}
 .btn-info:hover{background:var(--green-light);transform:translateY(-2px);}
 .btn-apply{background:var(--green);color:#fff;box-shadow:0 4px 16px rgba(45,158,107,.3);}
 .btn-apply:hover{background:var(--green-dark);transform:translateY(-2px);}
-.btn-kakao{background:var(--kakao);color:var(--kakao-text);box-shadow:0 2px 8px rgba(0,0,0,.1);}
-.btn-kakao:hover{background:#F5DC00;transform:translateY(-2px);}
 .info-strip{background:var(--blue-light);border-radius:var(--radius-sm);padding:12px 16px;font-size:12px;color:#1A4A7A;line-height:1.7;margin-bottom:1.5rem;}
 
 .admin-fixed{position:fixed;top:16px;right:16px;z-index:900;}
@@ -110,7 +106,7 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
 .time-slot{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:var(--radius-sm);margin-bottom:8px;flex-wrap:wrap;gap:8px;}
 .time-slot.booked{background:var(--red-light);border:1px solid #F5A8A8;}
 .time-slot-time{font-size:15px;font-weight:700;color:var(--text);}
-.time-slot-memo{font-size:12px;color:var(--text-2);font-weight:600;display:none;}
+.time-slot-memo{font-size:12px;color:var(--text-2);font-weight:600;background:var(--blue-light);padding:2px 10px;border-radius:12px;display:none;}
 .admin-active .time-slot-memo{display:inline-block;}
 .time-slot-status{font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;}
 .time-slot-status.booked{background:var(--red);color:#fff;}
@@ -169,7 +165,7 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
   .hero-char-right{width:55px;}
   .wrapper{padding:1rem .75rem 3rem;}
   .btn-row{flex-direction:column;gap:8px;}
-  .btn-third{padding:14px 10px;font-size:14px;}
+  .btn-half{padding:14px 10px;font-size:14px;}
   .flow-strip{gap:8px;padding:14px 10px;}
   .flow-arrow{font-size:16px;}
   .flow-num{width:34px;height:34px;font-size:16px;}
@@ -218,7 +214,7 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
 }
 
 .cal-day:focus-visible{outline:3px solid var(--green);outline-offset:2px;}
-.cal-btn:focus-visible,.btn-third:focus-visible,.target-tab:focus-visible,.admin-toggle:focus-visible,.admin-login-btn:focus-visible,.admin-logout:focus-visible,.modal-close:focus-visible,.time-slot-del:focus-visible,.retry-btn:focus-visible{outline:3px solid var(--green);outline-offset:2px;}
+.cal-btn:focus-visible,.btn-half:focus-visible,.target-tab:focus-visible,.admin-toggle:focus-visible,.admin-login-btn:focus-visible,.admin-logout:focus-visible,.modal-close:focus-visible,.time-slot-del:focus-visible,.retry-btn:focus-visible{outline:3px solid var(--green);outline-offset:2px;}
 </style>
 </head>
 <body>
@@ -258,10 +254,9 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
       </div>
     </nav>
 
-    <!-- ★ 버튼 3개: 프로그램 안내 / 신청하기 / 카카오 공유 -->
     <div class="btn-row">
-      <button class="btn-third btn-info" onclick="openModal()" aria-label="대상별 프로그램 안내 보기">📋 프로그램 안내</button>
-      <a href="https://forms.gle/WhtdMJ7jfwVG1Prk6" target="_blank" rel="noopener" class="btn-third btn-apply" aria-label="교육 프로그램 신청 폼 열기">✏️ 신청하기</a>
+      <button class="btn-half btn-info" onclick="openModal()" aria-label="대상별 프로그램 안내 보기">📋 프로그램 안내</button>
+      <a href="https://forms.gle/WhtdMJ7jfwVG1Prk6" target="_blank" rel="noopener" class="btn-half btn-apply" aria-label="교육 프로그램 신청 폼 열기">✏️ 지금 바로 신청하기</a>
     </div>
 
     <div class="info-strip" role="note">
@@ -299,9 +294,8 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
       <div id="timeSlots"></div>
       <div class="admin-add-form" id="adminAddForm">
         <div style="font-size:13px;font-weight:700;margin-bottom:10px;">➕ 교육 시간 추가</div>
-        <!-- ★ 메모(교육명/기관) 입력란 추가 -->
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
-          <input type="text" id="addMemo" placeholder="교육명 / 기관명 (예: 두더지방앗간 — ○○초)" aria-label="교육명 및 기관명 입력">
+          <input type="text" id="addMemo" placeholder="교육명 / 기관명 (예: 두더지방앗간 — ○○초)" aria-label="교육명 및 기관명 입력" style="width:100%;">
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           <select id="addStart" aria-label="교육 시작 시간 선택">
@@ -350,30 +344,6 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
 <img src="dui1.png" class="dui-float" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="맨 위로" alt="맨 위로 스크롤" role="button" tabindex="0" onkeydown="if(event.key==='Enter')window.scrollTo({top:0,behavior:'smooth'})">
 
 <script>
-/* ===== 카카오 SDK 초기화 ===== */
-// ★★★ 아래 키를 카카오 디벨로퍼스에서 발급받은 JavaScript 앱 키로 교체하세요 ★★★
-Kakao.init('YOUR_KAKAO_APP_KEY');
-
-function shareKakao(){
-  if(!Kakao.isInitialized()){showToast('카카오 SDK가 초기화되지 않았습니다');return;}
-  Kakao.Share.sendDefault({
-    objectType:'feed',
-    content:{
-      title:'🌱 환경교육 프로그램 예약 — 광덕산환경교육센터',
-      description:'유아부터 성인까지 다양한 환경교육 프로그램을 운영합니다. 캘린더에서 예약 현황을 확인하고 신청해보세요!',
-      imageUrl:'https://cbm9127-collab.github.io/reservation/og-image.png',
-      link:{
-        mobileWebUrl:'https://cbm9127-collab.github.io/reservation/',
-        webUrl:'https://cbm9127-collab.github.io/reservation/'
-      }
-    },
-    buttons:[
-      {title:'예약 페이지 열기',link:{mobileWebUrl:'https://cbm9127-collab.github.io/reservation/',webUrl:'https://cbm9127-collab.github.io/reservation/'}}
-    ]
-  });
-}
-
-/* ===== 전역 변수 ===== */
 var API_URL='https://script.google.com/macros/s/AKfycbx-gi-6GcGpH-Diuu0SmQJMtito2jgr8VbhyL1ncE54Q_E-3huv9b5BznMkRDP6Jg4lvQ/exec';
 var FORM_URL='https://forms.gle/WhtdMJ7jfwVG1Prk6';
 var allItems=[];
@@ -521,7 +491,6 @@ function renderTimePanel(){
     html='<div class="time-empty">✅ 예약된 교육이 없습니다. 신청 가능합니다!</div>';
   }else{
     slots.forEach(function(s){
-      /* ★ 관리자에게만 보이는 메모 영역 */
       var memoHtml='';
       if(s.memo){
         memoHtml='<span class="time-slot-memo">📝 '+s.memo+'</span>';
