@@ -449,37 +449,41 @@ function toggleAdminLogin(){
 }
 
 /* [개선 #1,#2] 관리자 로그인 — 서버측 검증 구조 */
-function adminLogin(){
-  var pw=document.getElementById('adminPw').value.trim();
-  if(!pw){showToast('비밀번호를 입력해주세요.');return;}
-  var btn=document.getElementById('adminLoginBtn');
-  btn.disabled=true;btn.textContent='확인 중...';
-
-  /* 서버에 비밀번호 검증 요청 */
-  fetch(API_URL+'?action=verifyAdmin&pw='+encodeURIComponent(pw))
-    .then(function(r){return r.json();})
-    .then(function(data){
-      btn.disabled=false;btn.textContent='로그인';
-      if(data.success){
-        isAdmin=true;
-        adminPw=pw;
-        document.getElementById('adminLoginBox').classList.remove('show');
-        document.getElementById('adminBar').classList.add('show');
-        document.getElementById('adminToggleBtn').textContent='🔓 관리자 ON';
-        document.body.classList.add('admin-active');
-        showToast('✅ 관리자 모드가 활성화되었습니다.');
-        if(selectedDate)showTimeSlots(selectedDate);
-      }else{
-        showToast('❌ 비밀번호가 올바르지 않습니다.');
-        document.getElementById('adminPw').value='';
-        document.getElementById('adminPw').focus();
-      }
-    })
-    .catch(function(){
-      btn.disabled=false;btn.textContent='로그인';
-      /* 서버 검증 실패 시 폴백 — 기존 로직 유지 (임시) */
-      showToast('⚠️ 서버 연결에 실패했습니다. 다시 시도해주세요.');
-    });
+  var pw = document.getElementById('adminPw').value.trim();
+  if(!pw){ showToast('비밀번호를 입력해주세요.'); return; }
+  var btn = document.getElementById('adminLoginBtn');
+  btn.disabled = true;
+  btn.textContent = '확인 중...';
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action: 'verify', pw: pw })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    btn.disabled = false;
+    btn.textContent = '로그인';
+    if(data.success){
+      isAdmin = true;
+      adminPw = pw;
+      document.getElementById('adminLoginBox').classList.remove('show');
+      document.getElementById('adminBar').classList.add('show');
+      document.getElementById('adminToggleBtn').textContent = '🔓 관리자 ON';
+      document.body.classList.add('admin-active');
+      showToast('✅ 관리자 모드 활성화');
+      if(selectedDate) showTimeSlots(selectedDate);
+    } else {
+      showToast('❌ ' + (data.message || '비밀번호가 올바르지 않습니다.'));
+      document.getElementById('adminPw').value = '';
+      document.getElementById('adminPw').focus();
+    }
+  })
+  .catch(function(err){
+    btn.disabled = false;
+    btn.textContent = '로그인';
+    showToast('⚠️ 서버 연결 실패. 다시 시도해주세요.');
+    console.error('Login error:', err);
+  });
 }
 
 function adminLogout(){
@@ -719,74 +723,73 @@ function getAvailableSlots(dayItems){
 
 /* ==================== 관리자: 교육 추가 ==================== */
 function adminAdd(){
-  if(!isAdmin){showToast('관리자 로그인이 필요합니다.');return;}
-  if(!selectedDate){showToast('날짜를 먼저 선택해주세요.');return;}
+  if(!isAdmin){ showToast('관리자 로그인이 필요합니다.'); return; }
+  if(!selectedDate){ showToast('날짜를 먼저 선택하세요.'); return; }
+  var start = document.getElementById('addStart').value;
+  var end = document.getElementById('addEnd').value;
+  var memo = document.getElementById('addMemo').value.trim();
+  if(!start || !end){ showToast('시작·종료 시간을 선택하세요.'); return; }
+  if(start >= end){ showToast('시작 시간이 종료 시간보다 빠르거나 같습니다.'); return; }
 
-  var memo=document.getElementById('addMemo').value.trim();
-  var start=document.getElementById('addStart').value;
-  var end=document.getElementById('addEnd').value;
-
-  if(!start||!end){showToast('시작·종료 시간을 모두 선택해주세요.');return;}
-
-  /* [개선 #3] 시간 유효성 검증 — 시작 >= 종료 차단 */
-  if(start>=end){
-    showToast('⚠️ 종료 시간은 시작 시간보다 늦어야 합니다.');
-    return;
-  }
-
-  /* [개선 #3] 시간 중복 검증 */
-  var dayItems=[];
-  for(var i=0;i<allItems.length;i++){
-    if(allItems[i].date===selectedDate)dayItems.push(allItems[i]);
-  }
-  for(var i=0;i<dayItems.length;i++){
-    var item=dayItems[i];
-    if(start<(item.end||'99:99') && end>(item.start||'00:00')){
-      showToast('⚠️ '+item.start+'~'+item.end+' 시간대와 겹칩니다. 다른 시간을 선택해주세요.');
+  // 프런트 중복 검증
+  var dayItems = allItems.filter(function(it){ return it.date === selectedDate; });
+  for(var i = 0; i < dayItems.length; i++){
+    var it = dayItems[i];
+    if(start < it.end && end > it.start){
+      showToast('⚠️ 기존 교육(' + it.start + '~' + it.end + ')과 시간이 겹칩니다.');
       return;
     }
   }
 
-  /* [개선 #2] 서버에 비밀번호 포함하여 전송 */
-  var params='action=add&date='+encodeURIComponent(selectedDate)+'&start='+encodeURIComponent(start)+'&end='+encodeURIComponent(end)+'&memo='+encodeURIComponent(memo)+'&pw='+encodeURIComponent(adminPw);
-
-  showToast('추가 중...');
-  fetch(API_URL+'?'+params)
-    .then(function(r){return r.json();})
-    .then(function(data){
-      if(data.error){showToast('❌ '+data.error);return;}
-      allItems.push({id:data.id||('temp_'+Date.now()),date:selectedDate,start:start,end:end,memo:memo});
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action: 'add', pw: adminPw, date: selectedDate, start: start, end: end, memo: memo })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if(data.success){
+      allItems = data.items || allItems;
       renderCalendar();
       showTimeSlots(selectedDate);
-      document.getElementById('addMemo').value='';
-      document.getElementById('addStart').value='';
-      document.getElementById('addEnd').value='';
       showToast('✅ 교육이 추가되었습니다.');
-    })
-    .catch(function(e){showToast('❌ 추가 실패: '+e.message);});
+      document.getElementById('addStart').value = '';
+      document.getElementById('addEnd').value = '';
+      document.getElementById('addMemo').value = '';
+    } else {
+      showToast('❌ ' + (data.message || '추가 실패'));
+    }
+  })
+  .catch(function(){ showToast('⚠️ 서버 연결 실패'); });
 }
 
 /* ==================== 관리자: 교육 삭제 ==================== */
-function adminDel(id,dateStr){
-  if(!isAdmin){showToast('관리자 로그인이 필요합니다.');return;}
-  if(!confirm('이 교육을 삭제하시겠습니까?'))return;
+function adminDel(btn){
+  if(!isAdmin) return;
+  var date = btn.getAttribute('data-date');
+  var start = btn.getAttribute('data-start');
+  var end = btn.getAttribute('data-end');
+  var source = btn.getAttribute('data-source') || 'admin';
+  var row = btn.getAttribute('data-row');
+  if(!confirm(date + ' ' + start + '~' + end + ' 교육을 삭제하시겠습니까?')) return;
 
-  /* [개선 #2] 서버에 비밀번호 포함하여 전송 */
-  var params='action=delete&id='+encodeURIComponent(id)+'&pw='+encodeURIComponent(adminPw);
-
-  showToast('삭제 중...');
-  fetch(API_URL+'?'+params)
-    .then(function(r){return r.json();})
-    .then(function(data){
-      if(data.error){showToast('❌ '+data.error);return;}
-      for(var i=allItems.length-1;i>=0;i--){
-        if(allItems[i].id===id)allItems.splice(i,1);
-      }
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action: 'remove', pw: adminPw, date: date, start: start, end: end, source: source, rowIndex: row ? parseInt(row) : null })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if(data.success){
+      allItems = data.items || allItems;
       renderCalendar();
-      showTimeSlots(dateStr);
-      showToast('✅ 교육이 삭제되었습니다.');
-    })
-    .catch(function(e){showToast('❌ 삭제 실패: '+e.message);});
+      showTimeSlots(selectedDate);
+      showToast('✅ 삭제되었습니다.');
+    } else {
+      showToast('❌ ' + (data.message || '삭제 실패'));
+    }
+  })
+  .catch(function(){ showToast('⚠️ 서버 연결 실패'); });
 }
 
 /* ==================== 프로그램 모달 ==================== */
