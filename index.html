@@ -73,7 +73,6 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(
 .cal-nav{display:flex;gap:6px;}
 .cal-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:var(--radius-xs);background:var(--surface);color:var(--text-2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
 .cal-btn:hover{background:var(--green-light);color:var(--green-dark);}
-/* [개선 #6] 오늘 버튼 스타일 */
 .cal-btn-today{height:34px;padding:0 12px;border:1px solid var(--border);border-radius:var(--radius-xs);background:var(--yellow);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
 .cal-btn-today:hover{background:#f0b620;transform:scale(1.05);}
 
@@ -114,7 +113,6 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(
 .time-panel-title::before{content:'';display:inline-block;width:4px;height:16px;background:var(--green);border-radius:2px;}
 .time-slot{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:var(--radius-sm);margin-bottom:8px;flex-wrap:wrap;gap:8px;}
 .time-slot.booked{background:var(--red-light);border:1px solid #F5A8A8;}
-/* [개선 #8] 빈 시간대(신청 가능) 슬롯 스타일 */
 .time-slot.available{background:var(--green-light);border:1px solid var(--green-mid);}
 .time-slot-time{font-size:15px;font-weight:700;color:var(--text);}
 .time-slot-memo{font-size:12px;color:var(--text-2);font-weight:600;background:var(--blue-light);padding:2px 10px;border-radius:12px;display:none;}
@@ -243,7 +241,6 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(
 </div>
 
 <header class="hero">
-  <!-- [개선 #10] 이미지에 loading="lazy" 추가 -->
   <img src="duihoi3.png" class="hero-char-left" alt="광덕산환경교육센터 캐릭터 두이와 호이" loading="lazy">
   <img src="hoi6.png" class="hero-char-right" alt="광덕산환경교육센터 캐릭터 호이" loading="lazy">
   <div class="hero-badge">🌱 광덕산환경교육센터</div>
@@ -271,7 +268,6 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(
 
     <div class="btn-row">
       <button class="btn-half btn-info" onclick="openModal()" aria-label="대상별 프로그램 안내 보기">📋 프로그램 안내</button>
-      <!-- [개선 #4] 신청 링크에 id 부여 — JS에서 날짜 파라미터를 동적으로 추가 -->
       <a id="applyLink" href="https://forms.gle/WhtdMJ7jfwVG1Prk6" target="_blank" rel="noopener" class="btn-half btn-apply" aria-label="교육 프로그램 신청 폼 열기">✏️ 지금 바로 신청하기</a>
     </div>
 
@@ -293,7 +289,6 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(
       <div class="cal-header">
         <div class="cal-title" id="cal-title" aria-live="polite"></div>
         <div class="cal-nav" role="navigation" aria-label="월 이동">
-          <!-- [개선 #6] "오늘" 버튼 추가 -->
           <button class="cal-btn-today" onclick="goToday()" aria-label="오늘 날짜로 이동">오늘</button>
           <button class="cal-btn" onclick="changeMonth(-1)" aria-label="이전 달">◀</button>
           <button class="cal-btn" onclick="changeMonth(1)" aria-label="다음 달">▶</button>
@@ -310,7 +305,6 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(
     <section class="time-panel" id="timePanel" aria-label="시간대별 교육 현황">
       <div class="time-panel-title" id="timePanelTitle"></div>
       <div id="timeSlots"></div>
-      <!-- [개선 #4] 시간 패널 안에 "이 날짜로 신청하기" 버튼 추가 -->
       <div id="applyDateBtn" style="display:none;margin-top:12px;text-align:center;">
         <a id="applyDateLink" href="#" target="_blank" rel="noopener" class="btn-half btn-apply" style="display:inline-flex;max-width:300px;" aria-label="선택한 날짜로 교육 신청하기">✏️ 이 날짜에 신청하기</a>
       </div>
@@ -363,12 +357,12 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<!-- [개선 #10] loading="lazy" 추가 -->
 <img src="dui1.png" class="dui-float" id="duiFloat" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="맨 위로" alt="맨 위로 스크롤" role="button" tabindex="0" onkeydown="if(event.key==='Enter')window.scrollTo({top:0,behavior:'smooth'})" loading="lazy">
 
 <script>
 var API_URL='https://script.google.com/macros/s/AKfycbwTHnx5JWGLZB8rsnfDQ5hsAs3MVR8GJ6MJmF4xCo7KYYDx7XwSDYPqv7NcpfwCVFkPKw/exec';
 var FORM_URL='https://forms.gle/WhtdMJ7jfwVG1Prk6';
+var FORM_PREFILL_BASE='https://docs.google.com/forms/d/e/1FAIpQLSfTxv_gcPnDfXn6vcci6pNCYFFdEZ8dnXPY4CELkHmvZxjNPA/viewform?usp=pp_url&entry.1190414822=';
 var allItems=[];
 var currentYear=new Date().getFullYear();
 var currentMonth=new Date().getMonth();
@@ -378,7 +372,6 @@ var adminPw='';
 var MONTHS=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 var DAYS=['일','월','화','수','목','금','토'];
 
-/* ========== [개선 #8] 운영 시간 슬롯 정의 (빈 시간대 표시용) ========== */
 var OPERATING_SLOTS=[
   {start:'09:00',end:'10:00'},
   {start:'10:00',end:'11:00'},
@@ -448,14 +441,12 @@ function toggleAdminLogin(){
   if(box.classList.contains('show'))document.getElementById('adminPw').focus();
 }
 
-/* [개선 #1,#2] 관리자 로그인 — 서버측 검증 구조 */
 function adminLogin(){
   var pw=document.getElementById('adminPw').value.trim();
   if(!pw){showToast('비밀번호를 입력해주세요.');return;}
   var btn=document.getElementById('adminLoginBtn');
   btn.disabled=true;btn.textContent='확인 중...';
 
-  /* 서버에 비밀번호 검증 요청 */
   fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'verify',pw:pw})})
     .then(function(r){return r.json();})
     .then(function(data){
@@ -470,14 +461,13 @@ function adminLogin(){
         showToast('✅ 관리자 모드가 활성화되었습니다.');
         if(selectedDate)showTimeSlots(selectedDate);
       }else{
-        showToast('❌ 비밀번호가 올바르지 않습니다.');
+        showToast('❌ '+(data.message||'비밀번호가 올바르지 않습니다.'));
         document.getElementById('adminPw').value='';
         document.getElementById('adminPw').focus();
       }
     })
     .catch(function(){
       btn.disabled=false;btn.textContent='로그인';
-      /* 서버 검증 실패 시 폴백 — 기존 로직 유지 (임시) */
       showToast('⚠️ 서버 연결에 실패했습니다. 다시 시도해주세요.');
     });
 }
@@ -564,7 +554,6 @@ function renderCalendar(){
     cell.innerHTML=html;
     cell.setAttribute('data-date',dateStr);
     cell.onclick=(function(ds){return function(){selectDate(ds);};})(dateStr);
-    /* 키보드 Enter로도 선택 */
     cell.onkeydown=(function(ds){return function(e){if(e.key==='Enter')selectDate(ds);};})(dateStr);
     grid.appendChild(cell);
   }
@@ -587,7 +576,6 @@ function changeMonth(dir){
   renderCalendar();
 }
 
-/* [개선 #6] 오늘 버튼 */
 function goToday(){
   var today=new Date();
   currentYear=today.getFullYear();
@@ -596,8 +584,8 @@ function goToday(){
   selectedDate=todayStr;
   renderCalendar();
   showTimeSlots(todayStr);
+  updateApplyLink(todayStr);
   showToast('📅 오늘 날짜로 이동했습니다.');
-  /* 스크롤 이동 */
   setTimeout(function(){
     document.getElementById('timePanel').scrollIntoView({behavior:'smooth',block:'start'});
   },100);
@@ -607,33 +595,19 @@ function selectDate(dateStr){
   selectedDate=dateStr;
   renderCalendar();
   showTimeSlots(dateStr);
-
-  /* [개선 #4] 신청 링크에 선택 날짜 전달 */
   updateApplyLink(dateStr);
-
-  /* [개선 #5] 시간 패널로 자동 스크롤 */
   setTimeout(function(){
     document.getElementById('timePanel').scrollIntoView({behavior:'smooth',block:'start'});
   },100);
 }
 
-/* [개선 #4] 신청 링크 업데이트 — Google Forms pre-fill 파라미터 */
+/* ★ 수정된 부분: 날짜를 Google Form에 자동 전달 */
 function updateApplyLink(dateStr){
-  /* 
-   * ※ 실제 Google Forms 날짜 필드의 entry ID에 맞게 수정하세요.
-   * 예: entry.123456789=2026-03-25 
-   * 아래는 기본 URL에 날짜 정보를 넘기는 예시입니다.
-   * 날짜 entry ID를 모르면 FORM_URL 그대로 사용합니다.
-   */
-  var FORM_DATE_ENTRY_ID=''; /* ← 여기에 실제 entry ID 입력 (예: 'entry.123456789') */
-  var link=FORM_URL;
-  if(FORM_DATE_ENTRY_ID && dateStr){
-    link=FORM_URL+'?'+FORM_DATE_ENTRY_ID+'='+encodeURIComponent(dateStr);
-  }
+  var link=FORM_PREFILL_BASE+encodeURIComponent(dateStr);
+
   var applyLink=document.getElementById('applyLink');
   if(applyLink)applyLink.href=link;
 
-  /* 시간 패널 내 "이 날짜에 신청하기" 버튼 */
   var applyDateLink=document.getElementById('applyDateLink');
   var applyDateBtn=document.getElementById('applyDateBtn');
   if(applyDateLink && applyDateBtn){
@@ -661,7 +635,6 @@ function showTimeSlots(dateStr){
   var html='';
 
   if(dayItems.length>0){
-    /* 예약된 시간 슬롯 표시 */
     dayItems.sort(function(a,b){return (a.start||'').localeCompare(b.start||'');});
     for(var i=0;i<dayItems.length;i++){
       var item=dayItems[i];
@@ -673,7 +646,6 @@ function showTimeSlots(dateStr){
       html+='</div>';
     }
 
-    /* [개선 #8] 빈 시간대 표시 */
     var availableSlots=getAvailableSlots(dayItems);
     if(availableSlots.length>0){
       html+='<div style="font-size:12px;font-weight:700;color:var(--green-dark);margin:12px 0 6px;padding-left:4px;">🟢 신청 가능한 시간대</div>';
@@ -685,7 +657,6 @@ function showTimeSlots(dateStr){
       }
     }
   }else{
-    /* 교육이 없는 날 — 전체 시간 신청 가능 */
     html+='<div class="time-empty" style="margin-bottom:8px;">이 날은 아직 예약된 교육이 없습니다.</div>';
     html+='<div style="font-size:12px;font-weight:700;color:var(--green-dark);margin:8px 0 6px;padding-left:4px;">🟢 전체 시간대 신청 가능</div>';
     for(var i=0;i<OPERATING_SLOTS.length;i++){
@@ -699,7 +670,6 @@ function showTimeSlots(dateStr){
   slotsEl.innerHTML=html;
 }
 
-/* [개선 #8] 예약된 시간과 겹치지 않는 빈 슬롯 계산 */
 function getAvailableSlots(dayItems){
   var available=[];
   for(var i=0;i<OPERATING_SLOTS.length;i++){
@@ -707,7 +677,6 @@ function getAvailableSlots(dayItems){
     var overlaps=false;
     for(var j=0;j<dayItems.length;j++){
       var item=dayItems[j];
-      /* 시간 겹침 확인: slotStart < itemEnd && slotEnd > itemStart */
       if(slot.start<(item.end||'99:99') && slot.end>(item.start||'00:00')){
         overlaps=true;break;
       }
@@ -727,14 +696,8 @@ function adminAdd(){
   var end=document.getElementById('addEnd').value;
 
   if(!start||!end){showToast('시작·종료 시간을 모두 선택해주세요.');return;}
+  if(start>=end){showToast('⚠️ 종료 시간은 시작 시간보다 늦어야 합니다.');return;}
 
-  /* [개선 #3] 시간 유효성 검증 — 시작 >= 종료 차단 */
-  if(start>=end){
-    showToast('⚠️ 종료 시간은 시작 시간보다 늦어야 합니다.');
-    return;
-  }
-
-  /* [개선 #3] 시간 중복 검증 */
   var dayItems=[];
   for(var i=0;i<allItems.length;i++){
     if(allItems[i].date===selectedDate)dayItems.push(allItems[i]);
@@ -747,7 +710,6 @@ function adminAdd(){
     }
   }
 
-  /* [개선 #2] 서버에 비밀번호 포함하여 전송 */
   var params='action=add&date='+encodeURIComponent(selectedDate)+'&start='+encodeURIComponent(start)+'&end='+encodeURIComponent(end)+'&memo='+encodeURIComponent(memo)+'&pw='+encodeURIComponent(adminPw);
 
   showToast('추가 중...');
@@ -771,7 +733,6 @@ function adminDel(id,dateStr){
   if(!isAdmin){showToast('관리자 로그인이 필요합니다.');return;}
   if(!confirm('이 교육을 삭제하시겠습니까?'))return;
 
-  /* [개선 #2] 서버에 비밀번호 포함하여 전송 */
   var params='action=delete&id='+encodeURIComponent(id)+'&pw='+encodeURIComponent(adminPw);
 
   showToast('삭제 중...');
@@ -794,7 +755,6 @@ function openModal(){
   document.getElementById('programModal').classList.add('show');
   setTarget('유아',document.querySelector('.target-tab.active'));
   document.body.style.overflow='hidden';
-  /* 모달 열릴 때 닫기 버튼에 포커스 */
   setTimeout(function(){document.querySelector('.modal-close').focus();},100);
 }
 
@@ -803,19 +763,13 @@ function closeModal(){
   document.body.style.overflow='';
 }
 
-/* [개선 #9] ESC 키로 모달 닫기 + 관리자 로그인 박스 닫기 */
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){
-    if(document.getElementById('programModal').classList.contains('show')){
-      closeModal();
-    }
-    if(document.getElementById('adminLoginBox').classList.contains('show')){
-      document.getElementById('adminLoginBox').classList.remove('show');
-    }
+    if(document.getElementById('programModal').classList.contains('show')){closeModal();}
+    if(document.getElementById('adminLoginBox').classList.contains('show')){document.getElementById('adminLoginBox').classList.remove('show');}
   }
 });
 
-/* 모달 배경 클릭 시 닫기 */
 document.getElementById('programModal').addEventListener('click',function(e){
   if(e.target===this)closeModal();
 });
@@ -847,11 +801,8 @@ function setTarget(key,btn){
 /* ==================== 플로팅 버튼 스크롤 표시 ==================== */
 window.addEventListener('scroll',function(){
   var dui=document.getElementById('duiFloat');
-  if(window.scrollY>300){
-    dui.classList.add('visible');
-  }else{
-    dui.classList.remove('visible');
-  }
+  if(window.scrollY>300){dui.classList.add('visible');}
+  else{dui.classList.remove('visible');}
 });
 
 /* ==================== 초기화 ==================== */
