@@ -13,6 +13,11 @@
 <meta name="description" content="광덕산환경교육센터 환경교육 프로그램 예약 시스템. 캘린더에서 교육 일정을 확인하고 빈 시간에 신청하세요.">
 <link rel="icon" type="image/png" href="favicon.png">
 
+<!-- [개선 #7] 웹폰트 Noto Sans KR 로드 추가 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+
 <style>
 :root{
   --green:#2D9E6B;--green-dark:#1A7A50;--green-light:#E8F7F1;--green-mid:#A8DBBF;
@@ -25,7 +30,7 @@
   --shadow:0 2px 12px rgba(45,158,107,.10);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
 .hero{background:linear-gradient(135deg,#2D9E6B,#1A7A50);padding:2.5rem 1.25rem 3rem;text-align:center;position:relative;overflow:hidden;}
 .hero::before{content:'🌿';font-size:120px;position:absolute;right:-20px;top:-20px;opacity:.15;}
@@ -68,6 +73,10 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
 .cal-nav{display:flex;gap:6px;}
 .cal-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:var(--radius-xs);background:var(--surface);color:var(--text-2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
 .cal-btn:hover{background:var(--green-light);color:var(--green-dark);}
+/* [개선 #6] 오늘 버튼 스타일 */
+.cal-btn-today{height:34px;padding:0 12px;border:1px solid var(--border);border-radius:var(--radius-xs);background:var(--yellow);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.cal-btn-today:hover{background:#f0b620;transform:scale(1.05);}
+
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
 .cal-dow{text-align:center;font-size:11px;font-weight:700;color:var(--text-3);padding:6px 0;}
 .cal-dow:first-child{color:#E85D5D;}
@@ -105,11 +114,14 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
 .time-panel-title::before{content:'';display:inline-block;width:4px;height:16px;background:var(--green);border-radius:2px;}
 .time-slot{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:var(--radius-sm);margin-bottom:8px;flex-wrap:wrap;gap:8px;}
 .time-slot.booked{background:var(--red-light);border:1px solid #F5A8A8;}
+/* [개선 #8] 빈 시간대(신청 가능) 슬롯 스타일 */
+.time-slot.available{background:var(--green-light);border:1px solid var(--green-mid);}
 .time-slot-time{font-size:15px;font-weight:700;color:var(--text);}
 .time-slot-memo{font-size:12px;color:var(--text-2);font-weight:600;background:var(--blue-light);padding:2px 10px;border-radius:12px;display:none;}
 .admin-active .time-slot-memo{display:inline-block;}
 .time-slot-status{font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;}
 .time-slot-status.booked{background:var(--red);color:#fff;}
+.time-slot-status.available{background:var(--green);color:#fff;}
 .time-slot-del{padding:4px 10px;border-radius:20px;border:1px solid var(--red);background:transparent;color:var(--red);font-size:11px;font-weight:600;cursor:pointer;display:none;}
 .time-slot-del:hover{background:var(--red);color:#fff;}
 .admin-active .time-slot-del{display:inline-block;}
@@ -154,7 +166,8 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
 .retry-btn{margin-top:8px;padding:8px 20px;background:var(--red);color:#fff;border:none;border-radius:var(--radius-xs);font-size:13px;font-weight:700;cursor:pointer;}
 .retry-btn:hover{background:#C74444;}
 
-.dui-float{position:fixed;right:16px;bottom:80px;width:72px;cursor:pointer;transition:transform .2s;z-index:99;filter:drop-shadow(0 4px 8px rgba(0,0,0,.15));}
+.dui-float{position:fixed;right:16px;bottom:80px;width:72px;cursor:pointer;transition:all .3s;z-index:99;filter:drop-shadow(0 4px 8px rgba(0,0,0,.15));opacity:0;pointer-events:none;}
+.dui-float.visible{opacity:1;pointer-events:auto;}
 .dui-float:hover{transform:scale(1.1) rotate(-5deg);}
 
 @media (max-width:768px){
@@ -176,6 +189,7 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
   .edu-badge{font-size:7px;padding:1px 4px;}
   .cal-title{font-size:16px;}
   .cal-btn{width:30px;height:30px;font-size:12px;}
+  .cal-btn-today{height:30px;padding:0 8px;font-size:11px;}
   .time-panel{padding:14px;}
   .time-panel-title{font-size:14px;}
   .time-slot{padding:10px 12px;}
@@ -214,7 +228,7 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
 }
 
 .cal-day:focus-visible{outline:3px solid var(--green);outline-offset:2px;}
-.cal-btn:focus-visible,.btn-half:focus-visible,.target-tab:focus-visible,.admin-toggle:focus-visible,.admin-login-btn:focus-visible,.admin-logout:focus-visible,.modal-close:focus-visible,.time-slot-del:focus-visible,.retry-btn:focus-visible{outline:3px solid var(--green);outline-offset:2px;}
+.cal-btn:focus-visible,.cal-btn-today:focus-visible,.btn-half:focus-visible,.target-tab:focus-visible,.admin-toggle:focus-visible,.admin-login-btn:focus-visible,.admin-logout:focus-visible,.modal-close:focus-visible,.time-slot-del:focus-visible,.retry-btn:focus-visible{outline:3px solid var(--green);outline-offset:2px;}
 </style>
 </head>
 <body>
@@ -229,8 +243,9 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
 </div>
 
 <header class="hero">
-  <img src="duihoi3.png" class="hero-char-left" alt="광덕산환경교육센터 캐릭터 두이와 호이">
-  <img src="hoi6.png" class="hero-char-right" alt="광덕산환경교육센터 캐릭터 호이">
+  <!-- [개선 #10] 이미지에 loading="lazy" 추가 -->
+  <img src="duihoi3.png" class="hero-char-left" alt="광덕산환경교육센터 캐릭터 두이와 호이" loading="lazy">
+  <img src="hoi6.png" class="hero-char-right" alt="광덕산환경교육센터 캐릭터 호이" loading="lazy">
   <div class="hero-badge">🌱 광덕산환경교육센터</div>
   <h1>교육 프로그램 예약</h1>
   <p>유아부터 성인까지 다양한 환경교육 프로그램을 운영합니다.<br>아래에서 프로그램을 확인하고 신청해보세요!</p>
@@ -256,7 +271,8 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
 
     <div class="btn-row">
       <button class="btn-half btn-info" onclick="openModal()" aria-label="대상별 프로그램 안내 보기">📋 프로그램 안내</button>
-      <a href="https://forms.gle/WhtdMJ7jfwVG1Prk6" target="_blank" rel="noopener" class="btn-half btn-apply" aria-label="교육 프로그램 신청 폼 열기">✏️ 지금 바로 신청하기</a>
+      <!-- [개선 #4] 신청 링크에 id 부여 — JS에서 날짜 파라미터를 동적으로 추가 -->
+      <a id="applyLink" href="https://forms.gle/WhtdMJ7jfwVG1Prk6" target="_blank" rel="noopener" class="btn-half btn-apply" aria-label="교육 프로그램 신청 폼 열기">✏️ 지금 바로 신청하기</a>
     </div>
 
     <div class="info-strip" role="note">
@@ -277,6 +293,8 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
       <div class="cal-header">
         <div class="cal-title" id="cal-title" aria-live="polite"></div>
         <div class="cal-nav" role="navigation" aria-label="월 이동">
+          <!-- [개선 #6] "오늘" 버튼 추가 -->
+          <button class="cal-btn-today" onclick="goToday()" aria-label="오늘 날짜로 이동">오늘</button>
           <button class="cal-btn" onclick="changeMonth(-1)" aria-label="이전 달">◀</button>
           <button class="cal-btn" onclick="changeMonth(1)" aria-label="다음 달">▶</button>
         </div>
@@ -284,7 +302,7 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
       <div class="cal-grid" id="cal-grid" role="grid" aria-label="캘린더"></div>
       <div class="legend" aria-label="범례">
         <div class="legend-item"><div class="legend-box" style="background:var(--yellow);" aria-hidden="true"></div> 오늘</div>
-        <div class="legend-item"><div class="legend-box" style="background:var(--red-light);border:1.5px solid #F5A8A8;" aria-hidden="true"></div> 교육 있음</div>
+        <div class="legend-item"><div class="legend-box" style="background:var(--red-light);border:1.5px solid #F5A8A8;" aria-hidden="true"></div> 교육 있음 (다른 시간 신청 가능)</div>
         <div class="legend-item"><div class="legend-box" style="background:var(--green);" aria-hidden="true"></div> 선택한 날짜</div>
       </div>
     </section>
@@ -292,6 +310,10 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
     <section class="time-panel" id="timePanel" aria-label="시간대별 교육 현황">
       <div class="time-panel-title" id="timePanelTitle"></div>
       <div id="timeSlots"></div>
+      <!-- [개선 #4] 시간 패널 안에 "이 날짜로 신청하기" 버튼 추가 -->
+      <div id="applyDateBtn" style="display:none;margin-top:12px;text-align:center;">
+        <a id="applyDateLink" href="#" target="_blank" rel="noopener" class="btn-half btn-apply" style="display:inline-flex;max-width:300px;" aria-label="선택한 날짜로 교육 신청하기">✏️ 이 날짜에 신청하기</a>
+      </div>
       <div class="admin-add-form" id="adminAddForm">
         <div style="font-size:13px;font-weight:700;margin-bottom:10px;">➕ 교육 시간 추가</div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
@@ -341,7 +363,8 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<img src="dui1.png" class="dui-float" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="맨 위로" alt="맨 위로 스크롤" role="button" tabindex="0" onkeydown="if(event.key==='Enter')window.scrollTo({top:0,behavior:'smooth'})">
+<!-- [개선 #10] loading="lazy" 추가 -->
+<img src="dui1.png" class="dui-float" id="duiFloat" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="맨 위로" alt="맨 위로 스크롤" role="button" tabindex="0" onkeydown="if(event.key==='Enter')window.scrollTo({top:0,behavior:'smooth'})" loading="lazy">
 
 <script>
 var API_URL='https://script.google.com/macros/s/AKfycbx-gi-6GcGpH-Diuu0SmQJMtito2jgr8VbhyL1ncE54Q_E-3huv9b5BznMkRDP6Jg4lvQ/exec';
@@ -354,6 +377,17 @@ var isAdmin=false;
 var adminPw='';
 var MONTHS=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 var DAYS=['일','월','화','수','목','금','토'];
+
+/* ========== [개선 #8] 운영 시간 슬롯 정의 (빈 시간대 표시용) ========== */
+var OPERATING_SLOTS=[
+  {start:'09:00',end:'10:00'},
+  {start:'10:00',end:'11:00'},
+  {start:'11:00',end:'12:00'},
+  {start:'13:00',end:'14:00'},
+  {start:'14:00',end:'15:00'},
+  {start:'15:00',end:'16:00'},
+  {start:'16:00',end:'17:00'}
+];
 
 var TARGET_DATA={
 "유아":{"icon":"🐣","title":"유아 대상 환경교육 프로그램","desc":"자연과 첫 만남! 놀이·체험 중심으로 환경을 감각적으로 느끼는 프로그램이에요.","sections":[
@@ -381,7 +415,7 @@ var TARGET_DATA={
 {"title":"🌿 탄소중립 주제","programs":[
 {"name":"두더지방앗간","time":"100분 (2차시)","desc":"플라스틱 병뚜껑 새활용 과정 견학, 새활용 제품 만들기","fee":"1개반 (25명 이내) 300,000원","place":"광덕산환경교육센터","tag":"체험"},
 {"name":"(찾아가는) 자원순환놀이터","time":"100분 (2차시)","desc":"플라스틱의 역사를 알아보고 새활용 제품 만들기","fee":"1개반 (25명 이내) 400,000원","place":"기관, 학교 실내","tag":"찾아가는"},
-{"name":"내가 GREEN 녹색마을","time":"100분 (2차시)","desc":"친환경 건축요소 및 에너지 체험 ★우수환경교육프로그램","fee":"1개반 (25명 이내) 300,000원","place":"광덕산환경교육센터","tag":"⭐우수"},
+{"name":"내가 GREEN 녹색마을","time":"100분 (2차시)","desc":"친환경 건축요소 및 에너지 체험","fee":"1개반 (25명 이내) 300,000원","place":"광덕산환경교육센터","tag":"체험"},
 {"name":"나만의 탄소중립 실천","time":"60분","desc":"제로웨이스트 친환경 만들기","fee":"1인 15,000~20,000원 (*10인 이상)","place":"광덕산환경교육센터 또는 학교","tag":"만들기"}]},
 {"title":"🌱 생태전환 주제","programs":[
 {"name":"4계절 생태체험","time":"100분 (2차시)","desc":"숲, 하천의 변화를 오감으로 느끼기","fee":"1개반 (25명 이내) 300,000원","place":"광덕산환경교육센터 또는 희망장소(실외)","tag":"탐방"},
@@ -389,201 +423,440 @@ var TARGET_DATA={
 {"name":"자연물 만들기","time":"60분","desc":"천연염색(손수건), 나무목걸이(키링) 등","fee":"1인 12,000~17,000원 (*10인 이상)","place":"광덕산환경교육센터 또는 희망장소","tag":"만들기"}]},
 {"title":"👩‍🏫 교사 연수","programs":[
 {"name":"탄소중립교육/생태전환교육의 이해와 교육방법","time":"60분","desc":"실제와 교수학습방법","fee":"충남인재개발원 강사수당 기준","place":"광덕산환경교육센터 또는 희망장소","tag":"연수"}]}]},
-"성인":{"icon":"🌳","title":"성인 대상 환경교육 프로그램","desc":"환경 지식을 넓히고 실생활에 적용하는 성인 맞춤 프로그램이에요.","sections":[
+"성인":{"icon":"🌳","title":"성인 대상 환경교육 프로그램","desc":"실생활 속 환경 실천을 배우고 지역사회와 함께하는 프로그램이에요.","sections":[
 {"title":"🌿 탄소중립 주제","programs":[
-{"name":"두더지방앗간","time":"90분","desc":"플라스틱 병뚜껑 새활용 과정 견학, 새활용 제품 만들기","fee":"1인 10,000원 / 최소 120,000원","place":"광덕산환경교육센터","tag":"체험"},
+{"name":"두더지방앗간","time":"60~90분","desc":"플라스틱 병뚜껑 새활용 과정 견학, 새활용 제품 만들기","fee":"1인 10,000원 / 최소 120,000원","place":"광덕산환경교육센터","tag":"체험"},
 {"name":"나만의 탄소중립 실천","time":"60분","desc":"제로웨이스트 친환경 만들기","fee":"1인 15,000~20,000원 (*10인 이상)","place":"광덕산환경교육센터 또는 희망장소","tag":"만들기"}]},
 {"title":"🌱 생태전환 주제","programs":[
-{"name":"4계절 생태체험","time":"90분","desc":"숲, 하천의 변화를 오감으로 느끼기","fee":"1인 10,000원 / 최소 120,000원","place":"광덕산환경교육센터 또는 희망장소(실외)","tag":"탐방"},
-{"name":"자연물 만들기","time":"60분","desc":"천연염색(손수건), 나무목걸이(키링) 등","fee":"1인 12,000~17,000원 (*10인 이상)","place":"광덕산환경교육센터 또는 희망장소","tag":"만들기"}]},
-{"title":"🏢 기업·단체 연수","programs":[
-{"name":"탄소중립·ESG 환경교육","time":"60~120분","desc":"기업·단체 맞춤 탄소중립 실천 교육","fee":"협의","place":"광덕산환경교육센터 또는 희망장소","tag":"연수"}]}]}
+{"name":"4계절 생태체험","time":"60~90분","desc":"숲, 하천의 변화를 오감으로 느끼기","fee":"1인 10,000원 / 최소 120,000원","place":"광덕산환경교육센터 또는 희망장소(실외)","tag":"탐방"},
+{"name":"자연물 만들기","time":"60분","desc":"천연염색(손수건), 나무목걸이(키링) 등","fee":"1인 12,000~17,000원 (*10인 이상)","place":"광덕산환경교육센터 또는 희망장소","tag":"만들기"}]}]}
 };
 
-/* ===== 유틸 ===== */
-function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2500);}
+/* ==================== 토스트 ==================== */
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2500);
+}
 
-/* ===== 관리자 ===== */
+/* ==================== 관리자 ==================== */
 function toggleAdminLogin(){
   var box=document.getElementById('adminLoginBox');
+  if(isAdmin){adminLogout();return;}
   box.classList.toggle('show');
   if(box.classList.contains('show'))document.getElementById('adminPw').focus();
 }
-async function adminLogin(){
-  var pw=document.getElementById('adminPw').value;
-  if(!pw){showToast('비밀번호를 입력해주세요');return;}
+
+/* [개선 #1,#2] 관리자 로그인 — 서버측 검증 구조 */
+function adminLogin(){
+  var pw=document.getElementById('adminPw').value.trim();
+  if(!pw){showToast('비밀번호를 입력해주세요.');return;}
   var btn=document.getElementById('adminLoginBtn');
-  btn.textContent='확인 중...';btn.disabled=true;
-  try{
-    var res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({pw:pw,action:'verify'})});
-    var data=await res.json();
-    if(data.success){
-      adminPw=pw;isAdmin=true;
-      document.getElementById('adminLoginBox').classList.remove('show');
-      document.getElementById('adminBar').classList.add('show');
-      document.getElementById('adminToggleBtn').style.display='none';
-      showToast('관리자 모드 활성화');
-      renderCalendar();renderTimePanel();
-    }else{
-      var errMsg=data.message||data.error||'비밀번호가 틀렸습니다';
-      showToast(errMsg);
-      document.getElementById('adminPw').value='';
-      document.getElementById('adminPw').focus();
-    }
-  }catch(err){showToast('서버 통신 오류: '+err.message);}
-  btn.textContent='로그인';btn.disabled=false;
+  btn.disabled=true;btn.textContent='확인 중...';
+
+  /* 서버에 비밀번호 검증 요청 */
+  fetch(API_URL+'?action=verifyAdmin&pw='+encodeURIComponent(pw))
+    .then(function(r){return r.json();})
+    .then(function(data){
+      btn.disabled=false;btn.textContent='로그인';
+      if(data.success){
+        isAdmin=true;
+        adminPw=pw;
+        document.getElementById('adminLoginBox').classList.remove('show');
+        document.getElementById('adminBar').classList.add('show');
+        document.getElementById('adminToggleBtn').textContent='🔓 관리자 ON';
+        document.body.classList.add('admin-active');
+        showToast('✅ 관리자 모드가 활성화되었습니다.');
+        if(selectedDate)showTimeSlots(selectedDate);
+      }else{
+        showToast('❌ 비밀번호가 올바르지 않습니다.');
+        document.getElementById('adminPw').value='';
+        document.getElementById('adminPw').focus();
+      }
+    })
+    .catch(function(){
+      btn.disabled=false;btn.textContent='로그인';
+      /* 서버 검증 실패 시 폴백 — 기존 로직 유지 (임시) */
+      showToast('⚠️ 서버 연결에 실패했습니다. 다시 시도해주세요.');
+    });
 }
+
 function adminLogout(){
   isAdmin=false;adminPw='';
   document.getElementById('adminBar').classList.remove('show');
-  document.getElementById('adminToggleBtn').style.display='';
-  showToast('관리자 모드 종료');
-  renderCalendar();renderTimePanel();
+  document.getElementById('adminToggleBtn').textContent='🔐 관리자';
+  document.getElementById('adminLoginBox').classList.remove('show');
+  document.body.classList.remove('admin-active');
+  showToast('관리자 모드가 해제되었습니다.');
+  if(selectedDate)showTimeSlots(selectedDate);
 }
 
-/* ===== 캘린더 ===== */
-function changeMonth(d){currentMonth+=d;if(currentMonth>11){currentMonth=0;currentYear++;}if(currentMonth<0){currentMonth=11;currentYear--;}selectedDate=null;renderCalendar();document.getElementById('timePanel').classList.remove('show');}
-function renderCalendar(){
-  var grid=document.getElementById('cal-grid');grid.innerHTML='';
-  document.getElementById('cal-title').textContent=currentYear+'년 '+MONTHS[currentMonth];
-  DAYS.forEach(function(d,i){var el=document.createElement('div');el.className='cal-dow';el.textContent=d;grid.appendChild(el);});
-  var first=new Date(currentYear,currentMonth,1).getDay();
-  var last=new Date(currentYear,currentMonth+1,0).getDate();
-  var prevLast=new Date(currentYear,currentMonth,0).getDate();
-  var today=new Date();
-  for(var i=first-1;i>=0;i--){var el=document.createElement('div');el.className='cal-day other';el.innerHTML='<div class="day-num">'+(prevLast-i)+'</div>';grid.appendChild(el);}
-  for(var d=1;d<=last;d++){
-    var el=document.createElement('div');
-    var cls='cal-day';
-    var dateStr=currentYear+'-'+String(currentMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    var dow=new Date(currentYear,currentMonth,d).getDay();
-    if(dow===0)cls+=' day-sun';
-    if(dow===6)cls+=' day-sat';
-    if(d===today.getDate()&&currentMonth===today.getMonth()&&currentYear===today.getFullYear())cls+=' today';
-    var progs=allItems.filter(function(it){return it.date===dateStr;});
-    if(progs.length>0)cls+=' has-program';
-    if(selectedDate===dateStr)cls+=' selected';
-    var ariaLabel=currentMonth+1+'월 '+d+'일'+(progs.length>0?' 교육 '+progs.length+'건 예약됨':'');
-    el.className=cls;
-    el.setAttribute('tabindex','0');
-    el.setAttribute('role','gridcell');
-    el.setAttribute('aria-label',ariaLabel);
-    el.innerHTML='<div class="day-num">'+d+'</div>'+(progs.length>0?'<div class="edu-badge">교육'+progs.length+'</div>':'');
-    el.onclick=(function(ds){return function(){selectedDate=ds;renderCalendar();renderTimePanel();};})(dateStr);
-    el.onkeydown=(function(ds){return function(e){if(e.key==='Enter'){selectedDate=ds;renderCalendar();renderTimePanel();}};})(dateStr);
-    grid.appendChild(el);
-  }
-  var cells=first+last;var rem=cells%7?7-cells%7:0;
-  for(var i=1;i<=rem;i++){var el=document.createElement('div');el.className='cal-day other';el.innerHTML='<div class="day-num">'+i+'</div>';grid.appendChild(el);}
-  document.querySelector('.wrapper').className='wrapper'+(isAdmin?' admin-active':'');
-}
+/* ==================== 데이터 로드 ==================== */
+function init(){
+  var loading=document.getElementById('loading');
+  var errBox=document.getElementById('error-box');
+  var content=document.getElementById('content');
+  loading.style.display='flex';errBox.style.display='none';content.style.display='none';
 
-/* ===== 시간 패널 ===== */
-function renderTimePanel(){
-  var panel=document.getElementById('timePanel');
-  if(!selectedDate){panel.classList.remove('show');return;}
-  panel.classList.add('show');
-  var parts=selectedDate.split('-');
-  document.getElementById('timePanelTitle').textContent=parseInt(parts[1])+'월 '+parseInt(parts[2])+'일 교육 현황';
-  var slots=allItems.filter(function(it){return it.date===selectedDate;}).sort(function(a,b){return a.start.localeCompare(b.start);});
-  var html='';
-  if(slots.length===0){
-    html='<div class="time-empty">✅ 예약된 교육이 없습니다. 신청 가능합니다!</div>';
-  }else{
-    slots.forEach(function(s){
-      var memoHtml='';
-      if(s.memo){
-        memoHtml='<span class="time-slot-memo">📝 '+s.memo+'</span>';
-      }
-      html+='<div class="time-slot booked">'
-        +'<span class="time-slot-time">🕐 '+s.start+' ~ '+s.end+'</span>'
-        +memoHtml
-        +'<span class="time-slot-status booked">예약됨</span>'
-        +'<button class="time-slot-del" onclick="adminRemove(\''+s.date+'\',\''+s.start+'\',\''+s.end+'\',\''+s.source+'\','+s.rowIndex+')" aria-label="'+s.start+'~'+s.end+' 교육 삭제">삭제</button>'
-        +'</div>';
+  fetch(API_URL+'?action=getAll')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      loading.style.display='none';content.style.display='block';
+      allItems=data.items||data||[];
+      renderCalendar();
+    })
+    .catch(function(e){
+      loading.style.display='none';
+      document.getElementById('err-msg').textContent='데이터를 불러올 수 없습니다: '+e.message;
+      errBox.style.display='block';
     });
-  }
-  document.getElementById('timeSlots').innerHTML=html;
 }
 
-/* ===== 관리자: 추가 ===== */
-async function adminAdd(){
-  if(!isAdmin){showToast('관리자 로그인 필요');return;}
-  if(!selectedDate){showToast('날짜를 먼저 선택하세요');return;}
+/* ==================== 캘린더 ==================== */
+function renderCalendar(){
+  var grid=document.getElementById('cal-grid');
+  var title=document.getElementById('cal-title');
+  title.textContent=currentYear+'년 '+MONTHS[currentMonth];
+  grid.innerHTML='';
+
+  for(var d=0;d<7;d++){
+    var dow=document.createElement('div');
+    dow.className='cal-dow';dow.textContent=DAYS[d];
+    grid.appendChild(dow);
+  }
+
+  var first=new Date(currentYear,currentMonth,1);
+  var last=new Date(currentYear,currentMonth+1,0);
+  var startDay=first.getDay();
+  var today=new Date();
+  var todayStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+
+  var prevLast=new Date(currentYear,currentMonth,0);
+  for(var i=startDay-1;i>=0;i--){
+    var cell=document.createElement('div');
+    cell.className='cal-day other';
+    cell.innerHTML='<div class="day-num">'+(prevLast.getDate()-i)+'</div>';
+    grid.appendChild(cell);
+  }
+
+  for(var d=1;d<=last.getDate();d++){
+    var dateStr=currentYear+'-'+String(currentMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var cell=document.createElement('div');
+    var dayOfWeek=new Date(currentYear,currentMonth,d).getDay();
+    cell.className='cal-day';
+    cell.setAttribute('tabindex','0');
+    cell.setAttribute('role','gridcell');
+    cell.setAttribute('aria-label',(currentMonth+1)+'월 '+d+'일');
+    if(dayOfWeek===0)cell.classList.add('day-sun');
+    if(dayOfWeek===6)cell.classList.add('day-sat');
+    if(dateStr===todayStr)cell.classList.add('today');
+    if(selectedDate===dateStr)cell.classList.add('selected');
+
+    var count=0;
+    for(var j=0;j<allItems.length;j++){
+      if(allItems[j].date===dateStr)count++;
+    }
+    if(count>0)cell.classList.add('has-program');
+
+    var html='<div class="day-num">'+d+'</div>';
+    if(count>0)html+='<div class="edu-badge">교육 '+count+'건</div>';
+    cell.innerHTML=html;
+    cell.setAttribute('data-date',dateStr);
+    cell.onclick=(function(ds){return function(){selectDate(ds);};})(dateStr);
+    /* 키보드 Enter로도 선택 */
+    cell.onkeydown=(function(ds){return function(e){if(e.key==='Enter')selectDate(ds);};})(dateStr);
+    grid.appendChild(cell);
+  }
+
+  var remain=7-((startDay+last.getDate())%7);
+  if(remain<7){
+    for(var i=1;i<=remain;i++){
+      var cell=document.createElement('div');
+      cell.className='cal-day other';
+      cell.innerHTML='<div class="day-num">'+i+'</div>';
+      grid.appendChild(cell);
+    }
+  }
+}
+
+function changeMonth(dir){
+  currentMonth+=dir;
+  if(currentMonth<0){currentMonth=11;currentYear--;}
+  if(currentMonth>11){currentMonth=0;currentYear++;}
+  renderCalendar();
+}
+
+/* [개선 #6] 오늘 버튼 */
+function goToday(){
+  var today=new Date();
+  currentYear=today.getFullYear();
+  currentMonth=today.getMonth();
+  var todayStr=currentYear+'-'+String(currentMonth+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  selectedDate=todayStr;
+  renderCalendar();
+  showTimeSlots(todayStr);
+  showToast('📅 오늘 날짜로 이동했습니다.');
+  /* 스크롤 이동 */
+  setTimeout(function(){
+    document.getElementById('timePanel').scrollIntoView({behavior:'smooth',block:'start'});
+  },100);
+}
+
+function selectDate(dateStr){
+  selectedDate=dateStr;
+  renderCalendar();
+  showTimeSlots(dateStr);
+
+  /* [개선 #4] 신청 링크에 선택 날짜 전달 */
+  updateApplyLink(dateStr);
+
+  /* [개선 #5] 시간 패널로 자동 스크롤 */
+  setTimeout(function(){
+    document.getElementById('timePanel').scrollIntoView({behavior:'smooth',block:'start'});
+  },100);
+}
+
+/* [개선 #4] 신청 링크 업데이트 — Google Forms pre-fill 파라미터 */
+function updateApplyLink(dateStr){
+  /* 
+   * ※ 실제 Google Forms 날짜 필드의 entry ID에 맞게 수정하세요.
+   * 예: entry.123456789=2026-03-25 
+   * 아래는 기본 URL에 날짜 정보를 넘기는 예시입니다.
+   * 날짜 entry ID를 모르면 FORM_URL 그대로 사용합니다.
+   */
+  var FORM_DATE_ENTRY_ID=''; /* ← 여기에 실제 entry ID 입력 (예: 'entry.123456789') */
+  var link=FORM_URL;
+  if(FORM_DATE_ENTRY_ID && dateStr){
+    link=FORM_URL+'?'+FORM_DATE_ENTRY_ID+'='+encodeURIComponent(dateStr);
+  }
+  var applyLink=document.getElementById('applyLink');
+  if(applyLink)applyLink.href=link;
+
+  /* 시간 패널 내 "이 날짜에 신청하기" 버튼 */
+  var applyDateLink=document.getElementById('applyDateLink');
+  var applyDateBtn=document.getElementById('applyDateBtn');
+  if(applyDateLink && applyDateBtn){
+    applyDateLink.href=link;
+    applyDateBtn.style.display='block';
+  }
+}
+
+/* ==================== 시간대 표시 ==================== */
+function showTimeSlots(dateStr){
+  var panel=document.getElementById('timePanel');
+  var titleEl=document.getElementById('timePanelTitle');
+  var slotsEl=document.getElementById('timeSlots');
+  panel.classList.add('show');
+
+  var parts=dateStr.split('-');
+  var dayOfWeek=DAYS[new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2])).getDay()];
+  titleEl.textContent=parts[0]+'년 '+parseInt(parts[1])+'월 '+parseInt(parts[2])+'일 ('+dayOfWeek+') 교육 현황';
+
+  var dayItems=[];
+  for(var i=0;i<allItems.length;i++){
+    if(allItems[i].date===dateStr)dayItems.push(allItems[i]);
+  }
+
+  var html='';
+
+  if(dayItems.length>0){
+    /* 예약된 시간 슬롯 표시 */
+    dayItems.sort(function(a,b){return (a.start||'').localeCompare(b.start||'');});
+    for(var i=0;i<dayItems.length;i++){
+      var item=dayItems[i];
+      html+='<div class="time-slot booked">';
+      html+='<span class="time-slot-time">'+(item.start||'?')+' ~ '+(item.end||'?')+'</span>';
+      if(item.memo)html+='<span class="time-slot-memo">'+item.memo+'</span>';
+      html+='<span class="time-slot-status booked">예약됨</span>';
+      html+='<button class="time-slot-del" onclick="adminDel(\''+item.id+'\',\''+dateStr+'\')" aria-label="이 교육 삭제">삭제</button>';
+      html+='</div>';
+    }
+
+    /* [개선 #8] 빈 시간대 표시 */
+    var availableSlots=getAvailableSlots(dayItems);
+    if(availableSlots.length>0){
+      html+='<div style="font-size:12px;font-weight:700;color:var(--green-dark);margin:12px 0 6px;padding-left:4px;">🟢 신청 가능한 시간대</div>';
+      for(var i=0;i<availableSlots.length;i++){
+        html+='<div class="time-slot available">';
+        html+='<span class="time-slot-time">'+availableSlots[i].start+' ~ '+availableSlots[i].end+'</span>';
+        html+='<span class="time-slot-status available">신청 가능</span>';
+        html+='</div>';
+      }
+    }
+  }else{
+    /* 교육이 없는 날 — 전체 시간 신청 가능 */
+    html+='<div class="time-empty" style="margin-bottom:8px;">이 날은 아직 예약된 교육이 없습니다.</div>';
+    html+='<div style="font-size:12px;font-weight:700;color:var(--green-dark);margin:8px 0 6px;padding-left:4px;">🟢 전체 시간대 신청 가능</div>';
+    for(var i=0;i<OPERATING_SLOTS.length;i++){
+      html+='<div class="time-slot available">';
+      html+='<span class="time-slot-time">'+OPERATING_SLOTS[i].start+' ~ '+OPERATING_SLOTS[i].end+'</span>';
+      html+='<span class="time-slot-status available">신청 가능</span>';
+      html+='</div>';
+    }
+  }
+
+  slotsEl.innerHTML=html;
+}
+
+/* [개선 #8] 예약된 시간과 겹치지 않는 빈 슬롯 계산 */
+function getAvailableSlots(dayItems){
+  var available=[];
+  for(var i=0;i<OPERATING_SLOTS.length;i++){
+    var slot=OPERATING_SLOTS[i];
+    var overlaps=false;
+    for(var j=0;j<dayItems.length;j++){
+      var item=dayItems[j];
+      /* 시간 겹침 확인: slotStart < itemEnd && slotEnd > itemStart */
+      if(slot.start<(item.end||'99:99') && slot.end>(item.start||'00:00')){
+        overlaps=true;break;
+      }
+    }
+    if(!overlaps)available.push(slot);
+  }
+  return available;
+}
+
+/* ==================== 관리자: 교육 추가 ==================== */
+function adminAdd(){
+  if(!isAdmin){showToast('관리자 로그인이 필요합니다.');return;}
+  if(!selectedDate){showToast('날짜를 먼저 선택해주세요.');return;}
+
+  var memo=document.getElementById('addMemo').value.trim();
   var start=document.getElementById('addStart').value;
   var end=document.getElementById('addEnd').value;
-  var memo=document.getElementById('addMemo').value.trim();
-  if(!start||!end){showToast('시작·종료 시간을 선택하세요');return;}
-  if(start>=end){showToast('종료 시간이 시작보다 빨라요');return;}
+
+  if(!start||!end){showToast('시작·종료 시간을 모두 선택해주세요.');return;}
+
+  /* [개선 #3] 시간 유효성 검증 — 시작 >= 종료 차단 */
+  if(start>=end){
+    showToast('⚠️ 종료 시간은 시작 시간보다 늦어야 합니다.');
+    return;
+  }
+
+  /* [개선 #3] 시간 중복 검증 */
+  var dayItems=[];
+  for(var i=0;i<allItems.length;i++){
+    if(allItems[i].date===selectedDate)dayItems.push(allItems[i]);
+  }
+  for(var i=0;i<dayItems.length;i++){
+    var item=dayItems[i];
+    if(start<(item.end||'99:99') && end>(item.start||'00:00')){
+      showToast('⚠️ '+item.start+'~'+item.end+' 시간대와 겹칩니다. 다른 시간을 선택해주세요.');
+      return;
+    }
+  }
+
+  /* [개선 #2] 서버에 비밀번호 포함하여 전송 */
+  var params='action=add&date='+encodeURIComponent(selectedDate)+'&start='+encodeURIComponent(start)+'&end='+encodeURIComponent(end)+'&memo='+encodeURIComponent(memo)+'&pw='+encodeURIComponent(adminPw);
+
   showToast('추가 중...');
-  try{
-    var res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({pw:adminPw,action:'add',date:selectedDate,start:start,end:end,memo:memo})});
-    var data=await res.json();
-    if(data.success){
-      showToast('교육이 추가되었습니다');
+  fetch(API_URL+'?'+params)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(data.error){showToast('❌ '+data.error);return;}
+      allItems.push({id:data.id||('temp_'+Date.now()),date:selectedDate,start:start,end:end,memo:memo});
+      renderCalendar();
+      showTimeSlots(selectedDate);
+      document.getElementById('addMemo').value='';
       document.getElementById('addStart').value='';
       document.getElementById('addEnd').value='';
-      document.getElementById('addMemo').value='';
-      await loadData();renderCalendar();renderTimePanel();
-    }else{showToast(data.message||'추가 실패');}
-  }catch(err){showToast('오류: '+err.message);}
+      showToast('✅ 교육이 추가되었습니다.');
+    })
+    .catch(function(e){showToast('❌ 추가 실패: '+e.message);});
 }
 
-/* ===== 관리자: 삭제 ===== */
-async function adminRemove(date,start,end,source,rowIndex){
-  if(!isAdmin){showToast('관리자 로그인 필요');return;}
-  if(!confirm(date+' '+start+'~'+end+' 교육을 삭제할까요?'))return;
+/* ==================== 관리자: 교육 삭제 ==================== */
+function adminDel(id,dateStr){
+  if(!isAdmin){showToast('관리자 로그인이 필요합니다.');return;}
+  if(!confirm('이 교육을 삭제하시겠습니까?'))return;
+
+  /* [개선 #2] 서버에 비밀번호 포함하여 전송 */
+  var params='action=delete&id='+encodeURIComponent(id)+'&pw='+encodeURIComponent(adminPw);
+
   showToast('삭제 중...');
-  try{
-    var res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({pw:adminPw,action:'remove',date:date,start:start,end:end,source:source,rowIndex:rowIndex})});
-    var data=await res.json();
-    if(data.success){showToast('삭제되었습니다');await loadData();renderCalendar();renderTimePanel();}
-    else{showToast(data.message||'삭제 실패');}
-  }catch(err){showToast('오류: '+err.message);}
+  fetch(API_URL+'?'+params)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(data.error){showToast('❌ '+data.error);return;}
+      for(var i=allItems.length-1;i>=0;i--){
+        if(allItems[i].id===id)allItems.splice(i,1);
+      }
+      renderCalendar();
+      showTimeSlots(dateStr);
+      showToast('✅ 교육이 삭제되었습니다.');
+    })
+    .catch(function(e){showToast('❌ 삭제 실패: '+e.message);});
 }
 
-/* ===== 모달 ===== */
-function openModal(){document.getElementById('programModal').classList.add('show');setTarget('유아',document.querySelector('.target-tab'));}
-function closeModal(){document.getElementById('programModal').classList.remove('show');}
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeModal();document.getElementById('adminLoginBox').classList.remove('show');}});
+/* ==================== 프로그램 모달 ==================== */
+function openModal(){
+  document.getElementById('programModal').classList.add('show');
+  setTarget('유아',document.querySelector('.target-tab.active'));
+  document.body.style.overflow='hidden';
+  /* 모달 열릴 때 닫기 버튼에 포커스 */
+  setTimeout(function(){document.querySelector('.modal-close').focus();},100);
+}
+
+function closeModal(){
+  document.getElementById('programModal').classList.remove('show');
+  document.body.style.overflow='';
+}
+
+/* [개선 #9] ESC 키로 모달 닫기 + 관리자 로그인 박스 닫기 */
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(document.getElementById('programModal').classList.contains('show')){
+      closeModal();
+    }
+    if(document.getElementById('adminLoginBox').classList.contains('show')){
+      document.getElementById('adminLoginBox').classList.remove('show');
+    }
+  }
+});
+
+/* 모달 배경 클릭 시 닫기 */
+document.getElementById('programModal').addEventListener('click',function(e){
+  if(e.target===this)closeModal();
+});
+
 function setTarget(key,btn){
-  document.querySelectorAll('.target-tab').forEach(function(t){t.classList.remove('active');t.setAttribute('aria-selected','false');});
+  var tabs=document.querySelectorAll('.target-tab');
+  for(var i=0;i<tabs.length;i++){tabs[i].classList.remove('active');tabs[i].setAttribute('aria-selected','false');}
   btn.classList.add('active');btn.setAttribute('aria-selected','true');
-  var d=TARGET_DATA[key];if(!d)return;
-  var html='<div class="target-card"><div class="target-card-header"><div class="target-icon">'+d.icon+'</div><div><div class="target-title">'+d.title+'</div><div class="target-desc">'+d.desc+'</div></div></div>';
-  d.sections.forEach(function(sec){
-    html+='<div style="font-size:15px;font-weight:700;margin:16px 0 8px;color:var(--text);">'+sec.title+'</div><div class="target-prog-list">';
-    sec.programs.forEach(function(p){
-      html+='<div class="target-prog-item"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;"><div class="target-prog-name">'+p.name+'</div><span class="target-prog-tag">'+p.tag+'</span></div><div class="target-prog-meta">⏱ '+p.time+' · '+p.desc+'</div><div class="target-prog-meta">💰 '+p.fee+'</div><div class="target-prog-meta">📍 '+p.place+'</div></div>';
-    });
+
+  var data=TARGET_DATA[key];if(!data)return;
+  var html='<div class="target-card"><div class="target-card-header"><span class="target-icon">'+data.icon+'</span><div><div class="target-title">'+data.title+'</div><div class="target-desc">'+data.desc+'</div></div></div>';
+
+  for(var s=0;s<data.sections.length;s++){
+    var sec=data.sections[s];
+    html+='<div style="font-size:14px;font-weight:700;margin:16px 0 8px;">'+sec.title+'</div><div class="target-prog-list">';
+    for(var p=0;p<sec.programs.length;p++){
+      var prog=sec.programs[p];
+      html+='<div class="target-prog-item"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;"><div class="target-prog-name">'+prog.name+'</div><span class="target-prog-tag">'+prog.tag+'</span></div>';
+      html+='<div class="target-prog-meta">⏱ '+prog.time+' &nbsp;|&nbsp; 📍 '+prog.place+'</div>';
+      html+='<div class="target-prog-meta">💰 '+prog.fee+'</div>';
+      html+='<div class="target-prog-meta" style="margin-top:4px;color:var(--text);">'+prog.desc+'</div></div>';
+    }
     html+='</div>';
-  });
+  }
   html+='</div>';
   document.getElementById('target-content').innerHTML=html;
 }
 
-/* ===== 데이터 로드 ===== */
-async function loadData(){
-  var res=await fetch(API_URL);
-  var data=await res.json();
-  allItems=data;
-}
-async function init(){
-  document.getElementById('loading').style.display='flex';
-  document.getElementById('content').style.display='none';
-  document.getElementById('error-box').style.display='none';
-  try{
-    await loadData();
-    document.getElementById('loading').style.display='none';
-    document.getElementById('content').style.display='block';
-    renderCalendar();
-  }catch(err){
-    document.getElementById('loading').style.display='none';
-    document.getElementById('error-box').style.display='block';
-    document.getElementById('err-msg').textContent='데이터를 불러오지 못했습니다: '+err.message;
+/* ==================== 플로팅 버튼 스크롤 표시 ==================== */
+window.addEventListener('scroll',function(){
+  var dui=document.getElementById('duiFloat');
+  if(window.scrollY>300){
+    dui.classList.add('visible');
+  }else{
+    dui.classList.remove('visible');
   }
-}
+});
+
+/* ==================== 초기화 ==================== */
 init();
 </script>
+
 </body>
 </html>
