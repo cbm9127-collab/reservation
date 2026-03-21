@@ -456,7 +456,7 @@ function adminLogin(){
   btn.disabled=true;btn.textContent='확인 중...';
 
   /* 서버에 비밀번호 검증 요청 */
-  fetch(API_URL+'?action=verifyAdmin&pw='+encodeURIComponent(pw))
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'verify',pw:pw})})
     .then(function(r){return r.json();})
     .then(function(data){
       btn.disabled=false;btn.textContent='로그인';
