@@ -438,7 +438,9 @@ async function adminLogin(){
       showToast('관리자 모드 활성화');
       renderCalendar();renderTimePanel();
     }else{
-      showToast('비밀번호가 틀렸습니다');
+      /* ★ 서버에서 보내는 메시지를 그대로 표시 (남은 횟수, 잠금 안내 포함) */
+      var errMsg = data.message || data.error || '비밀번호가 틀렸습니다';
+      showToast(errMsg);
       document.getElementById('adminPw').value='';
       document.getElementById('adminPw').focus();
     }
