@@ -454,6 +454,7 @@ function adminLogin(){
       if(data.success){
         isAdmin=true;
         adminPw=pw;
+        sessionStorage.setItem('adminPw',pw);
         document.getElementById('adminLoginBox').classList.remove('show');
         document.getElementById('adminBar').classList.add('show');
         document.getElementById('adminToggleBtn').textContent='🔓 관리자 ON';
@@ -474,6 +475,7 @@ function adminLogin(){
 
 function adminLogout(){
   isAdmin=false;adminPw='';
+  sessionStorage.removeItem('adminPw');
   document.getElementById('adminBar').classList.remove('show');
   document.getElementById('adminToggleBtn').textContent='🔐 관리자';
   document.getElementById('adminLoginBox').classList.remove('show');
@@ -816,6 +818,26 @@ window.addEventListener('scroll',function(){
 
 /* ==================== 초기화 ==================== */
 init();
+  (function restoreAdmin(){
+  var savedPw=sessionStorage.getItem('adminPw');
+  if(!savedPw)return;
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'verify',pw:savedPw})})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(data.success){
+        isAdmin=true;
+        adminPw=savedPw;
+        document.getElementById('adminLoginBox').classList.remove('show');
+        document.getElementById('adminBar').classList.add('show');
+        document.getElementById('adminToggleBtn').textContent='🔓 관리자 ON';
+        document.body.classList.add('admin-active');
+        if(selectedDate)showTimeSlots(selectedDate);
+      }else{
+        sessionStorage.removeItem('adminPw');
+      }
+    })
+    .catch(function(){});
+})();
 </script>
 
 </body>
