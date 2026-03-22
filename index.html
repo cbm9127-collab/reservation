@@ -642,7 +642,7 @@ function showTimeSlots(dateStr){
       html+='<span class="time-slot-time">'+(item.start||'?')+' ~ '+(item.end||'?')+'</span>';
       if(item.memo)html+='<span class="time-slot-memo">'+item.memo+'</span>';
       html+='<span class="time-slot-status booked">예약됨</span>';
-      html+='<button class="time-slot-del" onclick="adminDel(\''+item.id+'\',\''+dateStr+'\')" aria-label="이 교육 삭제">삭제</button>';
+      html+='<button class="time-slot-del" onclick="adminDel(\''+dateStr+'\',\''+item.start+'\',\''+item.end+'\','+(item.rowIndex||'null')+')" aria-label="이 교육 삭제">삭제</button>';
       html+='</div>';
     }
 
@@ -729,23 +729,22 @@ function adminAdd(){
 }
 
 /* ==================== 관리자: 교육 삭제 ==================== */
-function adminDel(id,dateStr){
+function adminDel(dateStr,start,end,rowIndex){
   if(!isAdmin){showToast('관리자 로그인이 필요합니다.');return;}
-  if(!confirm('이 교육을 삭제하시겠습니까?'))return;
-
-  var params='action=delete&id='+encodeURIComponent(id)+'&pw='+encodeURIComponent(adminPw);
+  if(!confirm(start+'~'+end+' 교육을 삭제하시겠습니까?'))return;
 
   showToast('삭제 중...');
-  fetch(API_URL+'?'+params)
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'remove',pw:adminPw,date:dateStr,start:start,end:end,rowIndex:rowIndex})})
     .then(function(r){return r.json();})
     .then(function(data){
-      if(data.error){showToast('❌ '+data.error);return;}
-      for(var i=allItems.length-1;i>=0;i--){
-        if(allItems[i].id===id)allItems.splice(i,1);
+      if(data.success){
+        allItems=data.items||[];
+        renderCalendar();
+        showTimeSlots(dateStr);
+        showToast('✅ 교육이 삭제되었습니다.');
+      }else{
+        showToast('❌ '+(data.message||'삭제 실패'));
       }
-      renderCalendar();
-      showTimeSlots(dateStr);
-      showToast('✅ 교육이 삭제되었습니다.');
     })
     .catch(function(e){showToast('❌ 삭제 실패: '+e.message);});
 }
