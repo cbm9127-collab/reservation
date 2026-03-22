@@ -728,6 +728,7 @@ function adminAdd(){
         document.getElementById('addStart').value='';
         document.getElementById('addEnd').value='';
         showToast('✅ 교육이 추가되었습니다.');
+        setTimeout(function(){init();},500);
       }else{
         showToast('❌ '+(data.message||'추가 실패'));
       }
