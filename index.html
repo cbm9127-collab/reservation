@@ -572,6 +572,7 @@ function adminLogin(){
         document.getElementById('adminToggleBtn').textContent='🔓 관리자 ON';
         document.body.classList.add('admin-active');
         updateMultiBar();
+        renderCalendar();
         showToast('✅ 관리자 모드가 활성화되었습니다.');
         if(selectedDate)showTimeSlots(selectedDate);
       }else{
@@ -1173,6 +1174,7 @@ init();
         document.getElementById('adminToggleBtn').textContent='🔓 관리자 ON';
         document.body.classList.add('admin-active');
         updateMultiBar();
+        renderCalendar();
         if(selectedDate)showTimeSlots(selectedDate);
       }else{
         sessionStorage.removeItem('adminPw');
