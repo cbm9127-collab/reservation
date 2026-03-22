@@ -596,6 +596,7 @@ function adminLogout(){
   document.body.classList.remove('admin-active');
   multiSelectedDates=[];
   updateMultiBar();
+  renderCalendar();
   showToast('관리자 모드가 해제되었습니다.');
   if(selectedDate)showTimeSlots(selectedDate);
 }
