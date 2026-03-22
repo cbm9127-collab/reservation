@@ -279,11 +279,7 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(
 .cal-day.closed:hover{background:#f0f0f0;transform:none;}
 .cal-day.closed .day-num{color:#bbb;}
 .closed-badge{display:inline-block;background:#ccc;color:#fff;font-size:7px;font-weight:700;padding:1px 4px;border-radius:8px;margin-top:2px;}
-.admin-active .cal-day.closed-admin{background:transparent;opacity:1;cursor:pointer;}
-.admin-active .cal-day.closed-admin:hover{background:var(--green-light);transform:scale(1.03);}
-.admin-active .cal-day.closed-admin .day-num{color:var(--text);}
-.admin-active .cal-day.closed-admin.day-sun .day-num{color:#E85D5D;}
-.closed-badge-admin{display:inline-block;background:rgba(0,0,0,.15);color:#888;font-size:7px;font-weight:600;padding:1px 4px;border-radius:8px;margin-top:2px;}
+.closed-badge-admin{display:inline-block;background:rgba(0,0,0,.15);color:#999;font-size:7px;font-weight:600;padding:1px 4px;border-radius:8px;margin-top:2px;}
 </style>
 </head>
 <body>
@@ -676,7 +672,6 @@ function renderCalendar(){
     if(dateStr===todayStr)cell.classList.add('today');
     var isClosed=(dayOfWeek===0||dayOfWeek===1);
     if(isClosed && !isAdmin)cell.classList.add('closed');
-    if(isClosed && isAdmin)cell.classList.add('closed-admin');
     if(selectedDate===dateStr && (!isClosed || isAdmin))cell.classList.add('selected');
     if(isAdmin && multiSelectedDates.indexOf(dateStr)>=0)cell.classList.add('multi-selected');
 
