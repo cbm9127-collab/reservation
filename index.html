@@ -712,24 +712,29 @@ function adminAdd(){
     }
   }
 
-  var params='action=add&date='+encodeURIComponent(selectedDate)+'&start='+encodeURIComponent(start)+'&end='+encodeURIComponent(end)+'&memo='+encodeURIComponent(memo)+'&pw='+encodeURIComponent(adminPw);
-
   showToast('추가 중...');
-  fetch(API_URL+'?'+params)
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'add',pw:adminPw,date:selectedDate,start:start,end:end,memo:memo})})
     .then(function(r){return r.json();})
     .then(function(data){
-      if(data.error){showToast('❌ '+data.error);return;}
-      allItems.push({id:data.id||('temp_'+Date.now()),date:selectedDate,start:start,end:end,memo:memo});
-      renderCalendar();
-      showTimeSlots(selectedDate);
-      document.getElementById('addMemo').value='';
-      document.getElementById('addStart').value='';
-      document.getElementById('addEnd').value='';
-      showToast('✅ 교육이 추가되었습니다.');
+      if(data.success){
+        if(data.items && data.items.length>0){
+          allItems=data.items;
+        }else{
+          allItems.push({date:selectedDate,start:start,end:end,memo:memo,source:'admin'});
+        }
+        renderCalendar();
+        showTimeSlots(selectedDate);
+        document.getElementById('addMemo').value='';
+        document.getElementById('addStart').value='';
+        document.getElementById('addEnd').value='';
+        showToast('✅ 교육이 추가되었습니다.');
+      }else{
+        showToast('❌ '+(data.message||'추가 실패'));
+      }
     })
     .catch(function(e){showToast('❌ 추가 실패: '+e.message);});
 }
-
+  
 /* ==================== 관리자: 교육 삭제 ==================== */
 function adminDel(dateStr,start,end,rowIndex){
   if(!isAdmin){showToast('관리자 로그인이 필요합니다.');return;}
