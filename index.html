@@ -484,6 +484,17 @@ function adminLogout(){
   if(selectedDate)showTimeSlots(selectedDate);
 }
 
+function refreshData(){
+  fetch(API_URL+'?action=getAll')
+  .then(function(r){return r.json();})
+  .then(function(data){
+   allItems=data.items||data||[];
+   renderCalendar();
+   if(selectedDate)showTimeSlots(selectedDate);
+  })
+  .catch(function(){});
+}
+
 /* ==================== 데이터 로드 ==================== */
 function init(){
   var loading=document.getElementById('loading');
@@ -713,13 +724,13 @@ function adminAdd(){
   }
 
   showToast('추가 중...');
-  var body=JSON.stringify({action:'add',pw:adminPw,date:selectedDate,start:start,end:end,memo:memo});
-  console.log('전송 데이터:', body);
-  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:body})
-    .then(function(r){console.log('응답 상태:', r.status); return r.json();})
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'add',pw:adminPw,date:selectedDate,start:start,end:end,memo:memo})})
+    .then(function(r){return r.json();})
     .then(function(data){
-      console.log('서버 응답:', JSON.stringify(data));
       if(data.success){
+        allItems.push({date:selectedDate,start:start,end:end,memo:memo,source:'admin',rowIndex:null});
+        renderCalendar();
+        showTimeSlots(selectedDate);
         document.getElementById('addMemo').value='';
         document.getElementById('addStart').value='';
         document.getElementById('addEnd').value='';
@@ -729,7 +740,7 @@ function adminAdd(){
         showToast('❌ '+(data.message||'추가 실패'));
       }
     })
-    .catch(function(e){console.log('에러:', e); showToast('❌ 추가 실패: '+e.message);});
+    .catch(function(e){showToast('❌ 추가 실패: '+e.message);});
 }
   
 /* ==================== 관리자: 교육 삭제 ==================== */
@@ -742,6 +753,14 @@ function adminDel(dateStr,start,end,rowIndex,source){
     .then(function(r){return r.json();})
     .then(function(data){
       if(data.success){
+        for(var i=allItems.length-1;i>=0;i--){
+          if(allItems[i].date===dateStr && allItems[i].start===start && allItems[i].end===end){
+            allItems.splice(i,1);
+            break;
+          }
+        }
+        renderCalendar();
+        showTimeSlots(dateStr);
         showToast('✅ 교육이 삭제되었습니다.');
         refreshData();
       }else{
