@@ -680,13 +680,14 @@ function renderCalendar(){
     else if(count>0)html+='<div class="edu-badge">교육 '+count+'건</div>';
     cell.innerHTML=html;
     cell.setAttribute('data-date',dateStr);
-    if(!isClosed){
+    if(!isClosed || isAdmin){
       cell.onclick=(function(ds){return function(){selectDate(ds);};})(dateStr);
       cell.onkeydown=(function(ds){return function(e){if(e.key==='Enter')selectDate(ds);};})(dateStr);
     }else{
       cell.onclick=function(){showToast('일요일·월요일은 휴관일입니다.');};
       cell.setAttribute('tabindex','-1');
     }
+
     grid.appendChild(cell);
   }
 
