@@ -713,9 +713,12 @@ function adminAdd(){
   }
 
   showToast('추가 중...');
-  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'add',pw:adminPw,date:selectedDate,start:start,end:end,memo:memo})})
-    .then(function(r){return r.json();})
+  var body=JSON.stringify({action:'add',pw:adminPw,date:selectedDate,start:start,end:end,memo:memo});
+  console.log('전송 데이터:', body);
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:body})
+    .then(function(r){console.log('응답 상태:', r.status); return r.json();})
     .then(function(data){
+      console.log('서버 응답:', JSON.stringify(data));
       if(data.success){
         document.getElementById('addMemo').value='';
         document.getElementById('addStart').value='';
@@ -726,7 +729,7 @@ function adminAdd(){
         showToast('❌ '+(data.message||'추가 실패'));
       }
     })
-    .catch(function(e){showToast('❌ 추가 실패: '+e.message);});
+    .catch(function(e){console.log('에러:', e); showToast('❌ 추가 실패: '+e.message);});
 }
   
 /* ==================== 관리자: 교육 삭제 ==================== */
