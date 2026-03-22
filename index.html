@@ -324,34 +324,8 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(
       </div>
       <div class="admin-bar-desc">📅 날짜를 클릭하면 시간대별 교육을 <strong>추가/삭제</strong>할 수 있습니다.<br>🔒 교육명·기관 정보는 관리자 모드에서만 확인 가능합니다.</div>
     </div>
-<div class="admin-add-form" id="adminAddForm">
-      <div style="font-size:13px;font-weight:700;margin-bottom:10px;">➕ 교육 시간 추가 (선택한 날짜 1개)</div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
-        <input type="text" id="addMemo" placeholder="교육명 / 기관명 (예: 두더지방앗간 — ○○초)" aria-label="교육명 및 기관명 입력" style="width:100%;">
-      </div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <select id="addStart" aria-label="교육 시작 시간 선택">
-          <option value="">시작 시간</option>
-          <option>09:00</option><option>09:30</option><option>10:00</option><option>10:30</option>
-          <option>11:00</option><option>11:30</option><option>12:00</option><option>12:30</option>
-          <option>13:00</option><option>13:30</option><option>14:00</option><option>14:30</option>
-          <option>15:00</option><option>15:30</option><option>16:00</option><option>16:30</option>
-          <option>17:00</option><option>17:30</option><option>18:00</option>
-        </select>
-        <span style="font-weight:700;" aria-hidden="true">~</span>
-        <select id="addEnd" aria-label="교육 종료 시간 선택">
-          <option value="">종료 시간</option>
-          <option>09:00</option><option>09:30</option><option>10:00</option><option>10:30</option>
-          <option>11:00</option><option>11:30</option><option>12:00</option><option>12:30</option>
-          <option>13:00</option><option>13:30</option><option>14:00</option><option>14:30</option>
-          <option>15:00</option><option>15:30</option><option>16:00</option><option>16:30</option>
-          <option>17:00</option><option>17:30</option><option>18:00</option>
-        </select>
-        <button onclick="adminAdd()" aria-label="선택한 시간에 교육 추가">추가</button>
-      </div>
-    </div>
      <div class="multi-bar" id="multiBar">
-      <div class="multi-bar-title">📅 복수 날짜 선택 모드</div>
+      <div class="multi-bar-title">📅 날짜 선택 모드</div>
       <div class="multi-bar-dates" id="multiBarDates"></div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
         <input type="text" id="multiMemo" placeholder="교육명 / 기관명 (예: 두더지방앗간 — ○○초)" style="flex:2;min-width:150px;padding:10px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:14px;">
@@ -559,6 +533,7 @@ function adminLogin(){
         document.getElementById('adminBar').classList.add('show');
         document.getElementById('adminToggleBtn').textContent='🔓 관리자 ON';
         document.body.classList.add('admin-active');
+        updateMultiBar();
         showToast('✅ 관리자 모드가 활성화되었습니다.');
         if(selectedDate)showTimeSlots(selectedDate);
       }else{
@@ -850,11 +825,15 @@ function bulkDeselectAllDel(){
 function updateMultiBar(){
   var bar=document.getElementById('multiBar');
   var datesEl=document.getElementById('multiBarDates');
-  if(!isAdmin || multiSelectedDates.length===0){
+  if(!isAdmin){
     bar.classList.remove('show');
     return;
   }
   bar.classList.add('show');
+  if(multiSelectedDates.length===0){
+    datesEl.innerHTML='<span style="color:var(--text-3);font-size:12px;">캘린더에서 날짜를 클릭하여 선택하세요</span>';
+    return;
+  }
   var html='';
   for(var i=0;i<multiSelectedDates.length;i++){
     var d=multiSelectedDates[i];
@@ -937,48 +916,6 @@ function multiAdd(){
   });
 }
   
-/* 관리자: 교육 추가 (단일 날짜 — 드롭다운 방식) */
-function adminAdd(){
-  if(!isAdmin){showToast('관리자 로그인이 필요합니다.');return;}
-  if(!selectedDate){showToast('날짜를 먼저 선택해주세요.');return;}
-  var memo=document.getElementById('addMemo').value.trim();
-  var start=document.getElementById('addStart').value;
-  var end=document.getElementById('addEnd').value;
-  if(!start||!end){showToast('시작·종료 시간을 모두 선택해주세요.');return;}
-  if(start>=end){showToast('⚠️ 종료 시간은 시작 시간보다 늦어야 합니다.');return;}
-
-  var dayItems=[];
-  for(var i=0;i<allItems.length;i++){
-    if(allItems[i].date===selectedDate)dayItems.push(allItems[i]);
-  }
-  for(var i=0;i<dayItems.length;i++){
-    var item=dayItems[i];
-    if(start<(item.end||'99:99') && end>(item.start||'00:00')){
-      showToast('⚠️ '+item.start+'~'+item.end+' 시간대와 겹칩니다.');
-      return;
-    }
-  }
-
-  showToast('추가 중...');
-  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'add',pw:adminPw,date:selectedDate,start:start,end:end,memo:memo})})
-    .then(function(r){return r.json();})
-    .then(function(data){
-      if(data.success){
-        allItems.push({date:selectedDate,start:start,end:end,memo:memo,source:'admin',rowIndex:null});
-        renderCalendar();
-        showTimeSlots(selectedDate);
-        document.getElementById('addMemo').value='';
-        document.getElementById('addStart').value='';
-        document.getElementById('addEnd').value='';
-        showToast('✅ 교육이 추가되었습니다.');
-        refreshData();
-      }else{
-        showToast('❌ '+(data.message||'추가 실패'));
-      }
-    })
-    .catch(function(e){showToast('❌ 추가 실패: '+e.message);});
-}
-
 /* 관리자: 교육 일괄 삭제 */
 function adminBulkDel(dateStr){
   if(!isAdmin){showToast('관리자 로그인이 필요합니다.');return;}
@@ -1176,6 +1113,7 @@ init();
         document.getElementById('adminBar').classList.add('show');
         document.getElementById('adminToggleBtn').textContent='🔓 관리자 ON';
         document.body.classList.add('admin-active');
+        updateMultiBar();
         if(selectedDate)showTimeSlots(selectedDate);
       }else{
         sessionStorage.removeItem('adminPw');
