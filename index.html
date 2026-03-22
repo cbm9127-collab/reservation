@@ -665,9 +665,10 @@ function renderCalendar(){
     if(dayOfWeek===6)cell.classList.add('day-sat');
     if(dateStr===todayStr)cell.classList.add('today');
     var isClosed=(dayOfWeek===0||dayOfWeek===1);
-    if(isClosed)cell.classList.add('closed');
-    if(selectedDate===dateStr && !isClosed)cell.classList.add('selected');
-    if(isAdmin && multiSelectedDates.indexOf(dateStr)>=0 && !isClosed)cell.classList.add('multi-selected');
+    if(isClosed && !isAdmin)cell.classList.add('closed');
+    if(selectedDate===dateStr && (!isClosed || isAdmin))cell.classList.add('selected');
+    if(isAdmin && multiSelectedDates.indexOf(dateStr)>=0)cell.classList.add('multi-selected');
+
 
     var count=0;
     for(var j=0;j<allItems.length;j++){
@@ -676,8 +677,9 @@ function renderCalendar(){
     if(count>0)cell.classList.add('has-program');
 
     var html='<div class="day-num">'+d+'</div>';
-    if(isClosed)html+='<div class="closed-badge">휴관</div>';
+    if(isClosed && !isAdmin)html+='<div class="closed-badge">휴관</div>';
     else if(count>0)html+='<div class="edu-badge">교육 '+count+'건</div>';
+
     cell.innerHTML=html;
     cell.setAttribute('data-date',dateStr);
     if(!isClosed || isAdmin){
