@@ -475,6 +475,8 @@ var currentMonth=new Date().getMonth();
 var selectedDate=null;
 var isAdmin=false;
 var adminPw='';
+var API_TOKEN='e284d679-cf90-430c-ad2a-568e5758c519';
+var sessionToken='';
 var multiSelectedDates=[];
 var MONTHS=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
 var DAYS=['일','월','화','수','목','금','토'];
@@ -561,7 +563,9 @@ function adminLogin(){
       if(data.success){
         isAdmin=true;
         adminPw=pw;
+        sessionToken=data.token||'';
         sessionStorage.setItem('adminPw',pw);
+        sessionStorage.setItem('sessionToken',sessionToken);
         document.getElementById('adminLoginBox').classList.remove('show');
         document.getElementById('adminBar').classList.add('show');
         document.getElementById('adminToggleBtn').textContent='🔓 관리자 ON';
@@ -582,8 +586,9 @@ function adminLogin(){
 }
 
 function adminLogout(){
-  isAdmin=false;adminPw='';
+  isAdmin=false;adminPw='';sessionToken='';
   sessionStorage.removeItem('adminPw');
+  sessionStorage.removeItem('sessionToken');
   document.getElementById('adminBar').classList.remove('show');
   document.getElementById('adminToggleBtn').textContent='🔐 관리자';
   document.getElementById('adminLoginBox').classList.remove('show');
@@ -933,7 +938,7 @@ function multiAdd(){
   var datesToAdd=multiSelectedDates.slice();
   datesToAdd.forEach(function(dateStr){
     fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify({action:'add',pw:adminPw,date:dateStr,start:start,end:end,memo:memo})})
+      body:JSON.stringify({action:'add',pw:adminPw,apiToken:API_TOKEN,sessionToken:sessionToken,date:dateStr,start:start,end:end,memo:memo})})
       .then(function(r){return r.json();})
       .then(function(data){
         if(data.success){
@@ -977,7 +982,7 @@ function adminBulkDel(dateStr){
     var source=cb.dataset.source||'admin';
 
     fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify({action:'remove',pw:adminPw,date:dateStr,start:start,end:end,source:source,rowIndex:rowIndex})})
+      body:JSON.stringify({action:'remove',pw:adminPw,apiToken:API_TOKEN,sessionToken:sessionToken,date:dateStr,start:start,end:end,source:source,rowIndex:rowIndex})})
       .then(function(r){return r.json();})
       .then(function(data){
         if(data.success){
@@ -1066,7 +1071,7 @@ function adminDel(dateStr,start,end,rowIndex,source){
   if(!confirm(start+'~'+end+' 교육을 삭제하시겠습니까?'))return;
 
   showToast('삭제 중...');
-  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'remove',pw:adminPw,date:dateStr,start:start,end:end,source:source||'admin',rowIndex:rowIndex})})
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'edit',pw:adminPw,apiToken:API_TOKEN,sessionToken:sessionToken,date:editingItem.date,start:start,end:end,memo:memo,oldStart:editingItem.oldStart,oldEnd:editingItem.oldEnd,source:editingItem.source,rowIndex:editingItem.rowIndex})})
     .then(function(r){return r.json();})
     .then(function(data){
       if(data.success){
@@ -1153,6 +1158,8 @@ init();
       if(data.success){
         isAdmin=true;
         adminPw=savedPw;
+        sessionToken=data.token||'';
+        sessionStorage.setItem('sessionToken',sessionToken);
         document.getElementById('adminLoginBox').classList.remove('show');
         document.getElementById('adminBar').classList.add('show');
         document.getElementById('adminToggleBtn').textContent='🔓 관리자 ON';
