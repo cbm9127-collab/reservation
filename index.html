@@ -275,6 +275,10 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(
 .bulk-btn:hover{background:#eee;}
 .del-check{width:16px;height:16px;cursor:pointer;accent-color:var(--red);}
 .bulk-del-bar{margin-top:12px;padding-top:12px;border-top:1px solid #eee;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}  
+.cal-day.closed{background:#f0f0f0;opacity:.5;cursor:not-allowed;}
+.cal-day.closed:hover{background:#f0f0f0;transform:none;}
+.cal-day.closed .day-num{color:#bbb;}
+.closed-badge{display:inline-block;background:#ccc;color:#fff;font-size:7px;font-weight:700;padding:1px 4px;border-radius:8px;margin-top:2px;}
 </style>
 </head>
 <body>
@@ -397,6 +401,7 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(
         <div class="legend-item"><div class="legend-box" style="background:var(--yellow);" aria-hidden="true"></div> 오늘</div>
         <div class="legend-item"><div class="legend-box" style="background:var(--red-light);border:1.5px solid #F5A8A8;" aria-hidden="true"></div> 교육 있음 (다른 시간 신청 가능)</div>
         <div class="legend-item"><div class="legend-box" style="background:var(--green);" aria-hidden="true"></div> 선택한 날짜</div>
+        <div class="legend-item"><div class="legend-box" style="background:#f0f0f0;border:1px solid #ccc;" aria-hidden="true"></div> 휴관 (일·월)</div>
       </div>
     </section>
 
@@ -659,8 +664,10 @@ function renderCalendar(){
     if(dayOfWeek===0)cell.classList.add('day-sun');
     if(dayOfWeek===6)cell.classList.add('day-sat');
     if(dateStr===todayStr)cell.classList.add('today');
-    if(selectedDate===dateStr)cell.classList.add('selected');
-    if(isAdmin && multiSelectedDates.indexOf(dateStr)>=0)cell.classList.add('multi-selected');
+    var isClosed=(dayOfWeek===0||dayOfWeek===1);
+    if(isClosed)cell.classList.add('closed');
+    if(selectedDate===dateStr && !isClosed)cell.classList.add('selected');
+    if(isAdmin && multiSelectedDates.indexOf(dateStr)>=0 && !isClosed)cell.classList.add('multi-selected');
 
     var count=0;
     for(var j=0;j<allItems.length;j++){
@@ -669,11 +676,17 @@ function renderCalendar(){
     if(count>0)cell.classList.add('has-program');
 
     var html='<div class="day-num">'+d+'</div>';
-    if(count>0)html+='<div class="edu-badge">교육 '+count+'건</div>';
+    if(isClosed)html+='<div class="closed-badge">휴관</div>';
+    else if(count>0)html+='<div class="edu-badge">교육 '+count+'건</div>';
     cell.innerHTML=html;
     cell.setAttribute('data-date',dateStr);
-    cell.onclick=(function(ds){return function(){selectDate(ds);};})(dateStr);
-    cell.onkeydown=(function(ds){return function(e){if(e.key==='Enter')selectDate(ds);};})(dateStr);
+    if(!isClosed){
+      cell.onclick=(function(ds){return function(){selectDate(ds);};})(dateStr);
+      cell.onkeydown=(function(ds){return function(e){if(e.key==='Enter')selectDate(ds);};})(dateStr);
+    }else{
+      cell.onclick=function(){showToast('일요일·월요일은 휴관일입니다.');};
+      cell.setAttribute('tabindex','-1');
+    }
     grid.appendChild(cell);
   }
 
