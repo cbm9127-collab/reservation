@@ -707,7 +707,7 @@ function adminAdd(){
   for(var i=0;i<dayItems.length;i++){
     var item=dayItems[i];
     if(start<(item.end||'99:99') && end>(item.start||'00:00')){
-      showToast('⚠️ '+item.start+'~'+item.end+' 시간대와 겹칩니다. 다른 시간을 선택해주세요.');
+      showToast('⚠️ '+item.start+'~'+item.end+' 시간대와 겹칩니다.');
       return;
     }
   }
@@ -717,18 +717,11 @@ function adminAdd(){
     .then(function(r){return r.json();})
     .then(function(data){
       if(data.success){
-        if(data.items && data.items.length>0){
-          allItems=data.items;
-        }else{
-          allItems.push({date:selectedDate,start:start,end:end,memo:memo,source:'admin'});
-        }
-        renderCalendar();
-        showTimeSlots(selectedDate);
         document.getElementById('addMemo').value='';
         document.getElementById('addStart').value='';
         document.getElementById('addEnd').value='';
         showToast('✅ 교육이 추가되었습니다.');
-        setTimeout(function(){init();},500);
+        refreshData();
       }else{
         showToast('❌ '+(data.message||'추가 실패'));
       }
@@ -746,16 +739,8 @@ function adminDel(dateStr,start,end,rowIndex,source){
     .then(function(r){return r.json();})
     .then(function(data){
       if(data.success){
-        for(var i=allItems.length-1;i>=0;i--){
-          if(allItems[i].date===dateStr && allItems[i].start===start && allItems[i].end===end){
-            allItems.splice(i,1);
-            break;
-          }
-        }
-        renderCalendar();
-        showTimeSlots(dateStr);
         showToast('✅ 교육이 삭제되었습니다.');
-        setTimeout(function(){init();},500);
+        refreshData();
       }else{
         showToast('❌ '+(data.message||'삭제 실패'));
       }
