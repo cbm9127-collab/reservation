@@ -227,6 +227,22 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(
 
 .cal-day:focus-visible{outline:3px solid var(--green);outline-offset:2px;}
 .cal-btn:focus-visible,.cal-btn-today:focus-visible,.btn-half:focus-visible,.target-tab:focus-visible,.admin-toggle:focus-visible,.admin-login-btn:focus-visible,.admin-logout:focus-visible,.modal-close:focus-visible,.time-slot-del:focus-visible,.retry-btn:focus-visible{outline:3px solid var(--green);outline-offset:2px;}
+.time-slot-edit{padding:4px 10px;border-radius:20px;border:1px solid var(--blue);background:transparent;color:var(--blue);font-size:11px;font-weight:600;cursor:pointer;display:none;}
+.time-slot-edit:hover{background:var(--blue);color:#fff;}
+.admin-active .time-slot-edit{display:inline-block;}
+.edit-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:1100;align-items:center;justify-content:center;padding:16px;}
+.edit-overlay.show{display:flex;}
+.edit-box{background:var(--white);border-radius:var(--radius);padding:24px;width:100%;max-width:400px;box-shadow:0 8px 40px rgba(0,0,0,.2);}
+.edit-box h3{font-size:16px;font-weight:700;margin-bottom:16px;}
+.edit-row{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap;}
+.edit-row label{font-size:13px;font-weight:600;min-width:60px;}
+.edit-row input,.edit-row select{padding:10px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:14px;flex:1;min-width:80px;}
+.edit-btns{display:flex;gap:8px;margin-top:16px;}
+.edit-btns button{flex:1;padding:12px;border:none;border-radius:var(--radius-xs);font-size:14px;font-weight:700;cursor:pointer;}
+.edit-save{background:var(--green);color:#fff;}
+.edit-save:hover{background:var(--green-dark);}
+.edit-cancel{background:var(--surface);color:var(--text-2);}
+.edit-cancel:hover{background:var(--border);}
 </style>
 </head>
 <body>
@@ -356,6 +372,36 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(
   </div>
 </div>
 
+<div class="edit-overlay" id="editOverlay">
+  <div class="edit-box">
+    <h3>✏️ 교육 시간 수정</h3>
+    <div class="edit-row"><label>날짜</label><input type="text" id="editDate" readonly></div>
+    <div class="edit-row">
+      <label>시작</label>
+      <select id="editStart">
+        <option>09:00</option><option>09:30</option><option>10:00</option><option>10:30</option>
+        <option>11:00</option><option>11:30</option><option>12:00</option><option>12:30</option>
+        <option>13:00</option><option>13:30</option><option>14:00</option><option>14:30</option>
+        <option>15:00</option><option>15:30</option><option>16:00</option><option>16:30</option>
+        <option>17:00</option>
+      </select>
+      <span style="font-weight:700;">~</span>
+      <label>종료</label>
+      <select id="editEnd">
+        <option>09:00</option><option>09:30</option><option>10:00</option><option>10:30</option>
+        <option>11:00</option><option>11:30</option><option>12:00</option><option>12:30</option>
+        <option>13:00</option><option>13:30</option><option>14:00</option><option>14:30</option>
+        <option>15:00</option><option>15:30</option><option>16:00</option><option>16:30</option>
+        <option>17:00</option>
+      </select>
+    </div>
+    <div class="edit-row"><label>교육명</label><input type="text" id="editMemo" placeholder="교육명 / 기관명"></div>
+    <div class="edit-btns">
+      <button class="edit-cancel" onclick="closeEdit()">취소</button>
+      <button class="edit-save" onclick="saveEdit()">저장</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <img src="dui1.png" class="dui-float" id="duiFloat" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="맨 위로" alt="맨 위로 스크롤" role="button" tabindex="0" onkeydown="if(event.key==='Enter')window.scrollTo({top:0,behavior:'smooth'})" loading="lazy">
 
@@ -655,6 +701,7 @@ function showTimeSlots(dateStr){
       html+='<span class="time-slot-time">'+(item.start||'?')+' ~ '+(item.end||'?')+'</span>';
       if(item.memo)html+='<span class="time-slot-memo">'+item.memo+'</span>';
       html+='<span class="time-slot-status booked">예약됨</span>';
+      html+='<button class="time-slot-edit" onclick="openEdit(\''+dateStr+'\',\''+item.start+'\',\''+item.end+'\',\''+(item.memo||'').replace(/'/g,"\\'")+'\','+(item.rowIndex||'null')+',\''+(item.source||'admin')+'\')" aria-label="이 교육 수정">수정</button>';
       html+='<button class="time-slot-del" onclick="adminDel(\''+dateStr+'\',\''+item.start+'\',\''+item.end+'\','+(item.rowIndex||'null')+',\''+(item.source||'admin')+'\')" aria-label="이 교육 삭제">삭제</button>';
       html+='</div>';
     }
@@ -742,6 +789,65 @@ function adminAdd(){
     })
     .catch(function(e){showToast('❌ 추가 실패: '+e.message);});
 }
+
+/* ==================== 관리자: 교육 수정 ==================== */
+var editingItem=null;
+
+function openEdit(dateStr,start,end,memo,rowIndex,source){
+  editingItem={date:dateStr,oldStart:start,oldEnd:end,rowIndex:rowIndex,source:source||'admin'};
+  document.getElementById('editDate').value=dateStr;
+  document.getElementById('editStart').value=start;
+  document.getElementById('editEnd').value=end;
+  document.getElementById('editMemo').value=memo||'';
+  document.getElementById('editOverlay').classList.add('show');
+}
+
+function closeEdit(){
+  document.getElementById('editOverlay').classList.remove('show');
+  editingItem=null;
+}
+
+function saveEdit(){
+  if(!editingItem)return;
+  var start=document.getElementById('editStart').value;
+  var end=document.getElementById('editEnd').value;
+  var memo=document.getElementById('editMemo').value.trim();
+
+  if(start>=end){showToast('⚠️ 종료 시간은 시작 시간보다 늦어야 합니다.');return;}
+
+  showToast('수정 중...');
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({
+    action:'edit',pw:adminPw,
+    date:editingItem.date,start:start,end:end,memo:memo,
+    oldStart:editingItem.oldStart,oldEnd:editingItem.oldEnd,
+    source:editingItem.source,rowIndex:editingItem.rowIndex
+  })})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(data.success){
+        for(var i=0;i<allItems.length;i++){
+          if(allItems[i].date===editingItem.date && allItems[i].start===editingItem.oldStart && allItems[i].end===editingItem.oldEnd){
+            allItems[i].start=start;
+            allItems[i].end=end;
+            allItems[i].memo=memo;
+            break;
+          }
+        }
+        renderCalendar();
+        showTimeSlots(editingItem.date);
+        closeEdit();
+        showToast('✅ 교육이 수정되었습니다.');
+        refreshData();
+      }else{
+        showToast('❌ '+(data.message||'수정 실패'));
+      }
+    })
+    .catch(function(e){showToast('❌ 수정 실패: '+e.message);});
+}
+
+document.getElementById('editOverlay').addEventListener('click',function(e){
+  if(e.target===this)closeEdit();
+});
   
 /* ==================== 관리자: 교육 삭제 ==================== */
 function adminDel(dateStr,start,end,rowIndex,source){
