@@ -644,7 +644,7 @@ function showTimeSlots(dateStr){
       html+='<span class="time-slot-time">'+(item.start||'?')+' ~ '+(item.end||'?')+'</span>';
       if(item.memo)html+='<span class="time-slot-memo">'+item.memo+'</span>';
       html+='<span class="time-slot-status booked">예약됨</span>';
-      html+='<button class="time-slot-del" onclick="adminDel(\''+dateStr+'\',\''+item.start+'\',\''+item.end+'\','+(item.rowIndex||'null')+')" aria-label="이 교육 삭제">삭제</button>';
+      html+='<button class="time-slot-del" onclick="adminDel(\''+dateStr+'\',\''+item.start+'\',\''+item.end+'\','+(item.rowIndex||'null')+',\''+(item.source||'admin')+'\')" aria-label="이 교육 삭제">삭제</button>';
       html+='</div>';
     }
 
@@ -737,29 +737,25 @@ function adminAdd(){
 }
   
 /* ==================== 관리자: 교육 삭제 ==================== */
-function adminDel(dateStr,start,end,rowIndex){
+function adminDel(dateStr,start,end,rowIndex,source){
   if(!isAdmin){showToast('관리자 로그인이 필요합니다.');return;}
   if(!confirm(start+'~'+end+' 교육을 삭제하시겠습니까?'))return;
 
   showToast('삭제 중...');
-  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'remove',pw:adminPw,date:dateStr,start:start,end:end,rowIndex:rowIndex})})
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'remove',pw:adminPw,date:dateStr,start:start,end:end,source:source||'admin',rowIndex:rowIndex})})
     .then(function(r){return r.json();})
     .then(function(data){
       if(data.success){
-        if(data.items && data.items.length>0){
-          allItems=data.items;
-        }else{
-         /* 서버가 목록을 안 돌려보내면 로컬에서만 해당 건 제거 */
-         for(var i=allItems.length-1;i>=0;i--){
+        for(var i=allItems.length-1;i>=0;i--){
           if(allItems[i].date===dateStr && allItems[i].start===start && allItems[i].end===end){
             allItems.splice(i,1);
             break;
-           }
           }
-         }
+        }
         renderCalendar();
         showTimeSlots(dateStr);
         showToast('✅ 교육이 삭제되었습니다.');
+        setTimeout(function(){init();},500);
       }else{
         showToast('❌ '+(data.message||'삭제 실패'));
       }
