@@ -100,11 +100,14 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(
 .legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-2);font-weight:600;}
 .legend-box{width:20px;height:20px;border-radius:4px;}
 
-.flow-strip{display:flex;align-items:center;justify-content:center;gap:16px;background:var(--green-light);border-radius:var(--radius-sm);padding:20px 16px;flex-wrap:wrap;}
-.flow-step{display:flex;flex-direction:column;align-items:center;gap:6px;}
-.flow-num{width:42px;height:42px;border-radius:50%;background:var(--green);color:#fff;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;}
-.flow-text{font-size:13px;color:var(--text-2);text-align:center;line-height:1.6;font-weight:600;}
-.flow-arrow{font-size:22px;color:var(--green-mid);font-weight:700;}
+.flow-strip{display:flex;align-items:stretch;justify-content:center;gap:12px;background:var(--green-light);border-radius:var(--radius);padding:24px 16px;flex-wrap:wrap;}
+.flow-step{display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;min-width:100px;max-width:160px;background:var(--white);border-radius:var(--radius-sm);padding:18px 12px;box-shadow:0 2px 8px rgba(45,158,107,.08);transition:transform .15s;}
+.flow-step:hover{transform:translateY(-3px);}
+.flow-num{width:28px;height:28px;border-radius:50%;background:var(--green);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.flow-icon{font-size:32px;margin:4px 0;}
+.flow-text{font-size:15px;color:var(--text);text-align:center;line-height:1.5;font-weight:700;}
+.flow-desc{font-size:11px;color:var(--text-2);text-align:center;line-height:1.4;margin-top:2px;}
+.flow-arrow{font-size:20px;color:var(--green-mid);font-weight:700;display:flex;align-items:center;}
 
 .time-panel{display:none;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:1.5rem;animation:fadeIn .3s;}
 .time-panel.show{display:block;}
@@ -177,10 +180,13 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(
   .wrapper{padding:1rem .75rem 3rem;}
   .btn-row{flex-direction:column;gap:8px;}
   .btn-half{padding:14px 10px;font-size:14px;}
-  .flow-strip{gap:8px;padding:14px 10px;}
+  .flow-strip{gap:8px;padding:16px 10px;}
+  .flow-step{min-width:70px;padding:14px 8px;}
   .flow-arrow{font-size:16px;}
-  .flow-num{width:34px;height:34px;font-size:16px;}
-  .flow-text{font-size:11px;}
+  .flow-num{width:24px;height:24px;font-size:10px;}
+  .flow-icon{font-size:26px;}
+  .flow-text{font-size:13px;}
+  .flow-desc{font-size:10px;}
   .cal-grid{gap:2px;}
   .cal-day{min-height:44px;padding:3px;}
   .day-num{font-size:11px;}
@@ -221,8 +227,10 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(
   .cal-day{min-height:38px;padding:2px;}
   .day-num{font-size:10px;}
   .edu-badge{font-size:6px;}
-  .flow-strip{flex-direction:column;gap:4px;}
+  .flow-strip{flex-direction:column;gap:6px;}
+  .flow-step{max-width:100%;flex-direction:row;gap:10px;padding:12px;}
   .flow-arrow{transform:rotate(90deg);font-size:14px;}
+  .flow-icon{font-size:24px;margin:0;}
 }
 
 .cal-day:focus-visible{outline:3px solid var(--green);outline-offset:2px;}
@@ -296,13 +304,33 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(
     <nav style="margin-bottom:16px;" aria-label="교육 신청 순서 안내">
       <div style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:12px;">📋 교육 신청 순서</div>
       <div class="flow-strip" role="list">
-        <div class="flow-step" role="listitem"><span class="flow-num" aria-hidden="true">1</span><span class="flow-text">📅 캘린더에서<br>예약 현황 확인</span></div>
+        <div class="flow-step" role="listitem">
+          <span class="flow-num" aria-hidden="true">1</span>
+          <span class="flow-icon" aria-hidden="true">📅</span>
+          <span class="flow-text">예약 현황 확인</span>
+          <span class="flow-desc">캘린더에서 날짜별 교육 일정을 확인하세요</span>
+        </div>
         <div class="flow-arrow" aria-hidden="true">→</div>
-        <div class="flow-step" role="listitem"><span class="flow-num" aria-hidden="true">2</span><span class="flow-text">📋 빈 시간대<br>확인</span></div>
+        <div class="flow-step" role="listitem">
+          <span class="flow-num" aria-hidden="true">2</span>
+          <span class="flow-icon" aria-hidden="true">🕐</span>
+          <span class="flow-text">빈 시간대 확인</span>
+          <span class="flow-desc">날짜를 클릭하면 신청 가능한 시간이 표시돼요</span>
+        </div>
         <div class="flow-arrow" aria-hidden="true">→</div>
-        <div class="flow-step" role="listitem"><span class="flow-num" aria-hidden="true">3</span><span class="flow-text">✏️ 신청 폼에서<br>정보 입력</span></div>
+        <div class="flow-step" role="listitem">
+          <span class="flow-num" aria-hidden="true">3</span>
+          <span class="flow-icon" aria-hidden="true">✏️</span>
+          <span class="flow-text">신청서 작성</span>
+          <span class="flow-desc">신청 폼에서 기관·인원·희망 시간을 입력하세요</span>
+        </div>
         <div class="flow-arrow" aria-hidden="true">→</div>
-        <div class="flow-step" role="listitem"><span class="flow-num" aria-hidden="true">4</span><span class="flow-text">✅ 신청<br>완료!</span></div>
+        <div class="flow-step" role="listitem">
+          <span class="flow-num" aria-hidden="true">4</span>
+          <span class="flow-icon" aria-hidden="true">✅</span>
+          <span class="flow-text">신청 완료!</span>
+          <span class="flow-desc">확인 이메일이 자동으로 발송됩니다</span>
+        </div>
       </div>
     </nav>
 
