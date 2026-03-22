@@ -738,7 +738,17 @@ function adminDel(dateStr,start,end,rowIndex){
     .then(function(r){return r.json();})
     .then(function(data){
       if(data.success){
-        allItems=data.items||[];
+        if(data.items && data.items.length>0){
+          allItems=data.items;
+        }else{
+         /* 서버가 목록을 안 돌려보내면 로컬에서만 해당 건 제거 */
+         for(var i=allItems.length-1;i>=0;i--){
+          if(allItems[i].date===dateStr && allItems[i].start===start && allItems[i].end===end){
+            allItems.splice(i,1);
+            break;
+           }
+          }
+         }
         renderCalendar();
         showTimeSlots(dateStr);
         showToast('✅ 교육이 삭제되었습니다.');
