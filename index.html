@@ -724,10 +724,13 @@ function selectDate(dateStr){
   renderCalendar();
   showTimeSlots(dateStr);
   updateApplyLink(dateStr);
-  setTimeout(function(){
-    document.getElementById('timePanel').scrollIntoView({behavior:'smooth',block:'start'});
-  },100);
+  if(!isAdmin){
+    setTimeout(function(){
+      document.getElementById('timePanel').scrollIntoView({behavior:'smooth',block:'start'});
+    },100);
+  }
 }
+
 
 /* ★ 수정된 부분: 날짜를 Google Form에 자동 전달 */
 function updateApplyLink(dateStr){
