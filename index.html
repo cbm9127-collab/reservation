@@ -243,6 +243,14 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(
 .edit-save:hover{background:var(--green-dark);}
 .edit-cancel{background:var(--surface);color:var(--text-2);}
 .edit-cancel:hover{background:var(--border);}
+.bulk-time-selector{background:#f8f9fa;border-radius:8px;padding:12px;margin:8px 0;}
+.bulk-time-item{display:inline-block;margin:4px 8px 4px 0;padding:6px 12px;background:#fff;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:14px;transition:all .15s;}
+.bulk-time-item:has(input:checked){background:#e8f5e9;border-color:#4caf50;font-weight:600;}
+.bulk-time-item input{margin-right:4px;}
+.bulk-btn{padding:4px 12px;margin-right:6px;border:1px solid #ccc;border-radius:4px;background:#fff;cursor:pointer;font-size:13px;}
+.bulk-btn:hover{background:#eee;}
+.del-check{width:16px;height:16px;cursor:pointer;accent-color:var(--red);}
+.bulk-del-bar{margin-top:12px;padding-top:12px;border-top:1px solid #eee;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}  
 </style>
 </head>
 <body>
@@ -324,31 +332,26 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(
       <div id="applyDateBtn" style="display:none;margin-top:12px;text-align:center;">
         <a id="applyDateLink" href="#" target="_blank" rel="noopener" class="btn-half btn-apply" style="display:inline-flex;max-width:300px;" aria-label="선택한 날짜로 교육 신청하기">✏️ 이 날짜에 신청하기</a>
       </div>
-      <div class="admin-add-form" id="adminAddForm">
+       <div class="admin-add-form" id="adminAddForm">
         <div style="font-size:13px;font-weight:700;margin-bottom:10px;">➕ 교육 시간 추가</div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
           <input type="text" id="addMemo" placeholder="교육명 / 기관명 (예: 두더지방앗간 — ○○초)" aria-label="교육명 및 기관명 입력" style="width:100%;">
         </div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <select id="addStart" aria-label="교육 시작 시간 선택">
-            <option value="">시작 시간</option>
-            <option>09:00</option><option>09:30</option><option>10:00</option><option>10:30</option>
-            <option>11:00</option><option>11:30</option><option>12:00</option><option>12:30</option>
-            <option>13:00</option><option>13:30</option><option>14:00</option><option>14:30</option>
-            <option>15:00</option><option>15:30</option><option>16:00</option><option>16:30</option>
-            <option>17:00</option>
-          </select>
-          <span style="font-weight:700;" aria-hidden="true">~</span>
-          <select id="addEnd" aria-label="교육 종료 시간 선택">
-            <option value="">종료 시간</option>
-            <option>09:00</option><option>09:30</option><option>10:00</option><option>10:30</option>
-            <option>11:00</option><option>11:30</option><option>12:00</option><option>12:30</option>
-            <option>13:00</option><option>13:30</option><option>14:00</option><option>14:30</option>
-            <option>15:00</option><option>15:30</option><option>16:00</option><option>16:30</option>
-            <option>17:00</option>
-          </select>
-          <button onclick="adminAdd()" aria-label="선택한 시간에 교육 추가">추가</button>
+        <div class="bulk-time-selector" id="bulkTimeSelector">
+          <p style="margin:0 0 8px;font-weight:600;font-size:13px;">추가할 시간대 선택 (복수 선택 가능)</p>
+          <label class="bulk-time-item"><input type="checkbox" value="09:00-10:00"> 09:00~10:00</label>
+          <label class="bulk-time-item"><input type="checkbox" value="10:00-11:00"> 10:00~11:00</label>
+          <label class="bulk-time-item"><input type="checkbox" value="11:00-12:00"> 11:00~12:00</label>
+          <label class="bulk-time-item"><input type="checkbox" value="13:00-14:00"> 13:00~14:00</label>
+          <label class="bulk-time-item"><input type="checkbox" value="14:00-15:00"> 14:00~15:00</label>
+          <label class="bulk-time-item"><input type="checkbox" value="15:00-16:00"> 15:00~16:00</label>
+          <label class="bulk-time-item"><input type="checkbox" value="16:00-17:00"> 16:00~17:00</label>
+          <div style="margin-top:8px;">
+            <button type="button" onclick="bulkSelectAll()" class="bulk-btn">전체 선택</button>
+            <button type="button" onclick="bulkDeselectAll()" class="bulk-btn">전체 해제</button>
+          </div>
         </div>
+        <button onclick="adminAdd()" aria-label="선택한 시간에 교육 추가" style="padding:10px 20px;background:var(--green);color:#fff;border:none;border-radius:var(--radius-xs);font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;">➕ 선택 시간대 일괄 추가</button>
       </div>
     </section>
   </div>
@@ -698,6 +701,9 @@ function showTimeSlots(dateStr){
     for(var i=0;i<dayItems.length;i++){
       var item=dayItems[i];
       html+='<div class="time-slot booked">';
+      if(isAdmin){
+      html+='<input type="checkbox" class="del-check" data-date="'+dateStr+'" data-start="'+item.start+'" data-end="'+item.end+'" data-row="'+(item.rowIndex||'')+'" data-source="'+(item.source||'admin')+'">';
+      }
       html+='<span class="time-slot-time">'+(item.start||'?')+' ~ '+(item.end||'?')+'</span>';
       if(item.memo)html+='<span class="time-slot-memo">'+item.memo+'</span>';
       html+='<span class="time-slot-status booked">예약됨</span>';
@@ -727,6 +733,15 @@ function showTimeSlots(dateStr){
     }
   }
 
+  /* 일괄 삭제 버튼 (관리자 모드 + 교육이 있을 때만) */
+  if(isAdmin && dayItems.length>0){
+    html+='<div class="bulk-del-bar">';
+    html+='<button type="button" onclick="bulkSelectAllDel()" class="bulk-btn">전체 선택</button>';
+    html+='<button type="button" onclick="bulkDeselectAllDel()" class="bulk-btn">전체 해제</button>';
+    html+='<button type="button" onclick="adminBulkDel(\''+dateStr+'\')" style="padding:6px 16px;background:#e53935;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700;">🗑 선택 삭제</button>';
+    html+='</div>';
+  }
+
   slotsEl.innerHTML=html;
 }
 
@@ -747,47 +762,112 @@ function getAvailableSlots(dayItems){
 }
 
 /* ==================== 관리자: 교육 추가 ==================== */
+/* 일괄 추가 — 체크박스 전체 선택/해제 */
+function bulkSelectAll(){
+  document.querySelectorAll('#bulkTimeSelector input[type=checkbox]').forEach(function(cb){cb.checked=true;});
+}
+function bulkDeselectAll(){
+  document.querySelectorAll('#bulkTimeSelector input[type=checkbox]').forEach(function(cb){cb.checked=false;});
+}
+
+/* 일괄 삭제 — 체크박스 전체 선택/해제 */
+function bulkSelectAllDel(){
+  document.querySelectorAll('.del-check').forEach(function(cb){cb.checked=true;});
+}
+function bulkDeselectAllDel(){
+  document.querySelectorAll('.del-check').forEach(function(cb){cb.checked=false;});
+}
+
+/* 관리자: 교육 일괄 추가 */
 function adminAdd(){
   if(!isAdmin){showToast('관리자 로그인이 필요합니다.');return;}
   if(!selectedDate){showToast('날짜를 먼저 선택해주세요.');return;}
-
   var memo=document.getElementById('addMemo').value.trim();
-  var start=document.getElementById('addStart').value;
-  var end=document.getElementById('addEnd').value;
+  var checkboxes=document.querySelectorAll('#bulkTimeSelector input[type=checkbox]:checked');
+  if(checkboxes.length===0){showToast('추가할 시간대를 하나 이상 선택해주세요.');return;}
 
-  if(!start||!end){showToast('시작·종료 시간을 모두 선택해주세요.');return;}
-  if(start>=end){showToast('⚠️ 종료 시간은 시작 시간보다 늦어야 합니다.');return;}
+  var slots=[];
+  checkboxes.forEach(function(cb){
+    var parts=cb.value.split('-');
+    slots.push({start:parts[0],end:parts[1]});
+  });
 
-  var dayItems=[];
-  for(var i=0;i<allItems.length;i++){
-    if(allItems[i].date===selectedDate)dayItems.push(allItems[i]);
-  }
-  for(var i=0;i<dayItems.length;i++){
-    var item=dayItems[i];
-    if(start<(item.end||'99:99') && end>(item.start||'00:00')){
-      showToast('⚠️ '+item.start+'~'+item.end+' 시간대와 겹칩니다.');
-      return;
+  /* 겹침 체크 */
+  for(var s=0;s<slots.length;s++){
+    for(var i=0;i<allItems.length;i++){
+      if(allItems[i].date===selectedDate && slots[s].start<allItems[i].end && slots[s].end>allItems[i].start){
+        showToast('⚠️ '+slots[s].start+'~'+slots[s].end+'이(가) '+allItems[i].start+'~'+allItems[i].end+'와 겹칩니다.');
+        return;
+      }
     }
   }
 
-  showToast('추가 중...');
-  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'add',pw:adminPw,date:selectedDate,start:start,end:end,memo:memo})})
-    .then(function(r){return r.json();})
-    .then(function(data){
-      if(data.success){
-        allItems.push({date:selectedDate,start:start,end:end,memo:memo,source:'admin',rowIndex:null});
-        renderCalendar();
-        showTimeSlots(selectedDate);
-        document.getElementById('addMemo').value='';
-        document.getElementById('addStart').value='';
-        document.getElementById('addEnd').value='';
-        showToast('✅ 교육이 추가되었습니다.');
-        refreshData();
-      }else{
-        showToast('❌ '+(data.message||'추가 실패'));
-      }
-    })
-    .catch(function(e){showToast('❌ 추가 실패: '+e.message);});
+  showToast('추가 중... ('+slots.length+'건)');
+  var completed=0,failed=0;
+
+  slots.forEach(function(slot){
+    fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({action:'add',pw:adminPw,date:selectedDate,start:slot.start,end:slot.end,memo:memo})})
+      .then(function(r){return r.json();})
+      .then(function(data){
+        if(data.success){
+          allItems.push({date:selectedDate,start:slot.start,end:slot.end,memo:memo,source:'admin',rowIndex:null});
+          completed++;
+        }else{failed++;}
+      })
+      .catch(function(){failed++;})
+      .finally(function(){
+        if(completed+failed===slots.length){
+          renderCalendar();showTimeSlots(selectedDate);
+          bulkDeselectAll();
+          document.getElementById('addMemo').value='';
+          if(failed===0)showToast('✅ '+completed+'건 교육이 추가되었습니다.');
+          else showToast('✅ '+completed+'건 추가, ❌ '+failed+'건 실패');
+          refreshData();
+        }
+      });
+  });
+}
+
+/* 관리자: 교육 일괄 삭제 */
+function adminBulkDel(dateStr){
+  if(!isAdmin){showToast('관리자 로그인이 필요합니다.');return;}
+  var checked=document.querySelectorAll('.del-check:checked');
+  if(checked.length===0){showToast('삭제할 교육을 선택해주세요.');return;}
+  if(!confirm(checked.length+'건의 교육을 삭제하시겠습니까?'))return;
+
+  showToast('삭제 중... ('+checked.length+'건)');
+  var completed=0,failed=0,total=checked.length;
+
+  checked.forEach(function(cb){
+    var start=cb.dataset.start;
+    var end=cb.dataset.end;
+    var rowIndex=cb.dataset.row?parseInt(cb.dataset.row):null;
+    var source=cb.dataset.source||'admin';
+
+    fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({action:'remove',pw:adminPw,date:dateStr,start:start,end:end,source:source,rowIndex:rowIndex})})
+      .then(function(r){return r.json();})
+      .then(function(data){
+        if(data.success){
+          for(var i=allItems.length-1;i>=0;i--){
+            if(allItems[i].date===dateStr&&allItems[i].start===start&&allItems[i].end===end){
+              allItems.splice(i,1);break;
+            }
+          }
+          completed++;
+        }else{failed++;}
+      })
+      .catch(function(){failed++;})
+      .finally(function(){
+        if(completed+failed===total){
+          renderCalendar();showTimeSlots(dateStr);
+          if(failed===0)showToast('✅ '+completed+'건 삭제 완료');
+          else showToast('✅ '+completed+'건 삭제, ❌ '+failed+'건 실패');
+          refreshData();
+        }
+      });
+  });
 }
 
 /* ==================== 관리자: 교육 수정 ==================== */
