@@ -1093,7 +1093,7 @@ function adminDel(dateStr,start,end,rowIndex,source){
   if(!confirm(start+'~'+end+' 교육을 삭제하시겠습니까?'))return;
 
   showToast('삭제 중...');
-  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'edit',pw:adminPw,apiToken:API_TOKEN,sessionToken:sessionToken,date:editingItem.date,start:start,end:end,memo:memo,oldStart:editingItem.oldStart,oldEnd:editingItem.oldEnd,source:editingItem.source,rowIndex:editingItem.rowIndex})})
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'remove',pw:adminPw,apiToken:API_TOKEN,sessionToken:sessionToken,date:dateStr,start:start,end:end,rowIndex:rowIndex,source:source})})
     .then(function(r){return r.json();})
     .then(function(data){
       if(data.success){
