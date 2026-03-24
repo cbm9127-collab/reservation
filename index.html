@@ -610,12 +610,23 @@ function adminLogout(){
 }
 
 function refreshData(){
+  // 1. 캐시된 데이터가 있으면 먼저 표시
+  var cached = localStorage.getItem('calendarData');
+  if(cached){
+    try{
+      allItems = JSON.parse(cached);
+      renderCalendar();
+      if(selectedDate)showTimeSlots(selectedDate);
+    }catch(e){}
+  }
+  // 2. 서버에서 최신 데이터 가져와서 갱신
   fetch(API_URL+'?action=getAll')
   .then(function(r){return r.json();})
   .then(function(data){
-   allItems=data.items||data||[];
-   renderCalendar();
-   if(selectedDate)showTimeSlots(selectedDate);
+    allItems=data.items||data||[];
+    localStorage.setItem('calendarData',JSON.stringify(allItems));
+    renderCalendar();
+    if(selectedDate)showTimeSlots(selectedDate);
   })
   .catch(function(){});
 }
