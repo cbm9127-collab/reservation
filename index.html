@@ -363,6 +363,13 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
         <input type="text" id="multiMemo" placeholder="교육명 / 기관명 (예: 두더지방앗간 — ○○초)" style="flex:2;min-width:150px;padding:10px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:14px;">
       </div>
+       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
+        <select id="multiPlace" style="padding:10px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:14px;" onchange="document.getElementById('multiPlaceAddr').style.display=this.value==='희망장소'?'block':'none'">
+          <option value="방문교육">방문교육 (센터)</option>
+          <option value="희망장소">희망장소 (외부)</option>
+        </select>
+        <input type="text" id="multiPlaceAddr" placeholder="희망장소 주소 입력" style="display:none;padding:10px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:14px;width:100%;">
+      </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
         <select id="multiStart" style="padding:10px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:14px;">
           <option value="">시작 시간</option>
@@ -807,6 +814,7 @@ function showTimeSlots(dateStr){
       html+='<input type="checkbox" class="del-check" data-date="'+dateStr+'" data-start="'+item.start+'" data-end="'+item.end+'" data-row="'+(item.rowIndex||'')+'" data-source="'+(item.source||'admin')+'">';
       }
       html+='<span class="time-slot-time">'+(item.start||'?')+' ~ '+(item.end||'?')+'</span>';
+      var placeLabel=item.placeText||item.place||'방문교육';html+='<span style="display:inline-block;background:'+(placeLabel.indexOf('희망')>=0?'#E8F0FE;color:#1A73E8':'#E8F5E9;color:#2D9E6B')+';font-size:11px;padding:2px 8px;border-radius:10px;margin-left:6px;">'+placeLabel+'</span>';
       if(item.memo)html+='<span class="time-slot-memo">'+item.memo+'</span>';
       html+='<span class="time-slot-status booked">예약됨</span>';
       html+='<button class="time-slot-edit" onclick="openEdit(\''+dateStr+'\',\''+item.start+'\',\''+item.end+'\',\''+(item.memo||'').replace(/'/g,"\\'")+'\','+(item.rowIndex||'null')+',\''+(item.source||'admin')+'\')" aria-label="이 교육 수정">수정</button>';
@@ -944,14 +952,16 @@ function multiAdd(){
   var completed=0,failed=0;
   showToast('추가 중... ('+total+'개 날짜)');
 
+  var placeVal = document.getElementById('multiPlace').value;
+  var placeAddrVal = document.getElementById('multiPlaceAddr').value.trim();
   var datesToAdd=multiSelectedDates.slice();
   datesToAdd.forEach(function(dateStr){
     fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify({action:'add',pw:adminPw,apiToken:API_TOKEN,sessionToken:sessionToken,date:dateStr,start:start,end:end,memo:memo})})
+      body:JSON.stringify({action:'add',pw:adminPw,apiToken:API_TOKEN,sessionToken:sessionToken,date:dateStr,start:start,end:end,memo:memo,place:placeVal,placeAddr:placeAddrVal})})
       .then(function(r){return r.json();})
       .then(function(data){
         if(data.success){
-          allItems.push({date:dateStr,start:start,end:end,memo:memo,source:'admin',rowIndex:null});
+          allItems.push({date:dateStr,start:start,end:end,memo:memo,source:'admin',rowIndex:null,place:placeVal,placeText:placeVal==='희망장소'&&placeAddrVal?'희망장소: '+placeAddrVal:'방문교육'});
           completed++;
         }else{failed++;}
       })
