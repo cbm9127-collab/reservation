@@ -937,16 +937,19 @@ function multiAdd(){
   if(start>=end){showToast('⚠️ 종료 시간은 시작 시간보다 늦어야 합니다.');return;}
 
   /* 겹침 체크 */
+  var placeVal=document.getElementById('multiPlace').value;
   for(var s=0;s<multiSelectedDates.length;s++){
-    var dateStr=multiSelectedDates[s];
-    for(var i=0;i<allItems.length;i++){
-      if(allItems[i].date===dateStr && start<(allItems[i].end||'99:99') && end>(allItems[i].start||'00:00')){
-        var parts=dateStr.split('-');
-        showToast('⚠️ '+parseInt(parts[1])+'월 '+parseInt(parts[2])+'일 '+allItems[i].start+'~'+allItems[i].end+'와 겹칩니다.');
-        return;
-      }
+   var dateStr=multiSelectedDates[s];
+   for(var i=0;i<allItems.length;i++){
+    if(allItems[i].date===dateStr && start<(allItems[i].end||'99:99') && end>(allItems[i].start||'00:00')){
+     var existPlace=allItems[i].place||allItems[i].placeText||'방문교육';
+     if(existPlace.indexOf('희망')>=0 || placeVal.indexOf('희망')>=0) continue;
+     var parts=dateStr.split('-');
+     showToast('⚠ '+parseInt(parts[1])+'월 '+parseInt(parts[2])+'일 '+allItems[i].start+'~'+allItems[i].end+'와 겹칩니다.');
+     return;
     }
   }
+}
 
   var total=multiSelectedDates.length;
   var completed=0,failed=0;
