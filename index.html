@@ -833,7 +833,13 @@ function showTimeSlots(dateStr){
       html+='<input type="checkbox" class="del-check" data-date="'+dateStr+'" data-start="'+item.start+'" data-end="'+item.end+'" data-row="'+(item.rowIndex||'')+'" data-source="'+(item.source||'admin')+'">';
       }
       html+='<span class="time-slot-time">'+(item.start||'?')+' ~ '+(item.end||'?')+'</span>';
-      var placeLabel=item.placeText||item.place||'방문교육';html+='<span style="display:inline-block;background:'+(placeLabel.indexOf('희망')>=0?'#E8F0FE;color:#1A73E8':'#E8F5E9;color:#2D9E6B')+';font-size:11px;padding:2px 8px;border-radius:10px;margin-left:6px;">'+placeLabel+'</span>';
+      var placeLabel;
+      if (isAdmin && item.placeText) {
+       placeLabel = item.placeText;
+      } else {
+       placeLabel = (item.place && item.place.indexOf('희망') >= 0) ? '희망장소' : '방문교육';
+      }
+      html+='<span style="display:inline-block;background:'+(placeLabel.indexOf('희망')>=0?'#E8F0FE;color:#1A73E8':'#E8F5E9;color:#2D9E6B')+';font-size:11px;padding:2px 8px;border-radius:10px;margin-left:6px;">'+placeLabel+'</span>';
       if(item.memo)html+='<span class="time-slot-memo">'+item.memo+'</span>';
       html+='<span class="time-slot-status booked">예약됨</span>';
       html+='<button class="time-slot-edit" onclick="openEdit(\''+dateStr+'\',\''+item.start+'\',\''+item.end+'\',\''+(item.memo||'').replace(/'/g,"\\'")+'\','+(item.rowIndex||'null')+',\''+(item.source||'admin')+'\')" aria-label="이 교육 수정">수정</button>';
